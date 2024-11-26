@@ -1,4 +1,4 @@
-class SoundManager {
+export default class SoundManager {
   constructor() {
     this.baseUrl = 'app/style/audio/';
     this.fileFormat = 'mp3';
@@ -141,7 +141,3 @@ class SoundManager {
     }
   }
 }
-
-// removeIf(production)
-module.exports = SoundManager;
-// endRemoveIf(production)

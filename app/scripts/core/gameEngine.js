@@ -1,4 +1,4 @@
-class GameEngine {
+export default class GameEngine {
   constructor(maxFps, entityList) {
     this.fpsDisplay = document.getElementById('fps-display');
     this.elapsedMs = 0;
@@ -154,7 +154,3 @@ class GameEngine {
     this.engineCycle(timestamp);
   }
 }
-
-// removeIf(production)
-module.exports = GameEngine;
-// endRemoveIf(production)

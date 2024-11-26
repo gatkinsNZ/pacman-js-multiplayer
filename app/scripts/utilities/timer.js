@@ -1,4 +1,4 @@
-class Timer {
+export default class Timer {
   constructor(callback, delay) {
     this.callback = callback;
     this.remaining = delay;
@@ -49,7 +49,3 @@ class Timer {
     }
   }
 }
-
-// removeIf(production)
-module.exports = Timer;
-// endRemoveIf(production)

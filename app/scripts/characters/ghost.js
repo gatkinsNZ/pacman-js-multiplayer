@@ -1,4 +1,4 @@
-class Ghost {
+export default class Ghost {
   constructor(
     scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky,
   ) {
@@ -840,7 +840,3 @@ class Ghost {
     }
   }
 }
-
-// removeIf(production)
-module.exports = Ghost;
-// endRemoveIf(production)

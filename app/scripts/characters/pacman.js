@@ -1,4 +1,4 @@
-class Pacman {
+export default class Pacman {
   constructor(scaledTileSize, mazeArray, characterUtil) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
@@ -262,7 +262,3 @@ class Pacman {
     }
   }
 }
-
-// removeIf(production)
-module.exports = Pacman;
-// endRemoveIf(production)

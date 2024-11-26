@@ -1,4 +1,4 @@
-class CharacterUtil {
+export default class CharacterUtil {
   constructor() {
     this.directions = {
       up: 'up',
@@ -274,7 +274,3 @@ class CharacterUtil {
     return updatedProperties;
   }
 }
-
-// removeIf(production)
-module.exports = CharacterUtil;
-// endRemoveIf(production)
