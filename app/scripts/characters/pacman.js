@@ -1,10 +1,13 @@
 export default class Pacman {
-  constructor(scaledTileSize, mazeArray, characterUtil) {
+  constructor(scaledTileSize, mazeArray, characterUtil, name, pacmanIndex, totalPacmans) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
     this.characterUtil = characterUtil;
-    this.animationTarget = document.getElementById('pacman');
-    this.pacmanArrow = document.getElementById('pacman-arrow');
+    this.animationTarget = document.getElementById(name);
+    this.pacmanArrow = document.getElementById(name + '-arrow');
+    this.pacmanIndex = pacmanIndex;
+    this.totalPacmans = totalPacmans;
+    this.name = name;
 
     this.reset();
   }
@@ -13,10 +16,10 @@ export default class Pacman {
    * Rests the character to its default state
    */
   reset() {
-    this.setMovementStats(this.scaledTileSize);
+    this.setMovementStats(this.scaledTileSize, this.pacmanIndex, this.totalPacmans);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
-    this.setDefaultPosition(this.scaledTileSize);
+    this.setDefaultPosition(this.scaledTileSize, this.pacmanIndex, this.totalPacmans);
     this.setSpriteSheet(this.direction);
     this.pacmanArrow.style.backgroundImage = 'url(app/style/graphics/'
       + `spriteSheets/characters/pacman/arrow_${this.direction}.svg)`;
@@ -26,11 +29,27 @@ export default class Pacman {
    * Sets various properties related to Pacman's movement
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
-  setMovementStats(scaledTileSize) {
+  setMovementStats(scaledTileSize, pacmanIndex, totalPacmans) {
     this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
-    this.desiredDirection = this.characterUtil.directions.left;
-    this.direction = this.characterUtil.directions.left;
     this.moving = false;
+
+    //TODO: needs to be made dynamic for number of pacmen
+    if (totalPacmans == 1) {
+      this.desiredDirection = this.characterUtil.directions.left;
+      this.direction = this.characterUtil.directions.left;
+    }
+    else {
+      switch (pacmanIndex) {
+        case 0:
+          this.desiredDirection = this.characterUtil.directions.left;
+          this.direction = this.characterUtil.directions.left;
+          break;
+        case 1:
+          this.desiredDirection = this.characterUtil.directions.right;
+          this.direction = this.characterUtil.directions.right;
+          break;
+      }
+    }    
   }
 
   /**
@@ -65,17 +84,40 @@ export default class Pacman {
     this.pacmanArrow.style.height = `${this.measurement * 2}px`;
     this.pacmanArrow.style.width = `${this.measurement * 2}px`;
     this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
+
+    //TODO: start with pacman mouth open - can be rmeoved if want just circle
+    this.backgroundOffsetPixels = this.measurement;
+    this.animationTarget.style.backgroundPosition =`-${this.backgroundOffsetPixels}px 0px`;
   }
 
   /**
    * Sets the default position and direction for Pacman at the game's start
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
-  setDefaultPosition(scaledTileSize) {
-    this.defaultPosition = {
-      top: scaledTileSize * 22.5,
-      left: scaledTileSize * 13,
-    };
+  setDefaultPosition(scaledTileSize, pacmanIndex, totalPacmans) {
+    //TODO: needs to be made more dynamic
+    if(totalPacmans == 1) {
+      this.defaultPosition = {
+        top: scaledTileSize * 22.5,
+        left: scaledTileSize * 13,
+      };
+    }
+    else {
+      switch (pacmanIndex) {
+        case 0:
+          this.defaultPosition = {
+            top: scaledTileSize * 22.5,
+            left: scaledTileSize * 11.5,
+          };
+          break;
+        case 1:
+          this.defaultPosition = {
+            top: scaledTileSize * 22.5,
+            left: scaledTileSize * 14.5,
+          };
+          break;
+      }
+    }
     this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;

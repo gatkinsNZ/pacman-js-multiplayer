@@ -7,6 +7,22 @@
     <link href='https://fonts.googleapis.com/icon?family=Material+Icons'
       rel='stylesheet'>
     <title>Pacman</title>
+    <!-- TODO: below can be removed after testing -->
+    <style>
+      #ball {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: red;
+
+        background-image: -webkit-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: -moz-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: -ms-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: radial-gradient(circle at 40% 40%, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
+
+        position: relative;
+      }
+    </style>
   </head>
 
   <body>
@@ -21,6 +37,12 @@
         <button id='game-start' class='game-start'>
           PLAY
         </button>
+        <!-- TODO: below can be removed after testing -->
+        <button id='demo-start' class='game-start'>
+          PLAY DEMO
+        </button>
+        <p id="gamepad-info">Waiting for Gamepad.</p>
+        <div id="ball"></div>
       </div>
 
       <div class='header-buttons'>
@@ -56,6 +78,8 @@
           <div id='dot-container'></div>
           <p id='pacman' class='pacman'></p>
           <p id='pacman-arrow' class='pacman'></p>
+          <p id='pacman_george' class='pacman'></p>
+          <p id='pacman_george-arrow' class='pacman'></p>
           <p id='clyde' class='ghost'></p>
           <p id='inky' class='ghost'></p>
           <p id='pinky' class='ghost'></p>

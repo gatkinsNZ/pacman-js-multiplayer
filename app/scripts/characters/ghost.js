@@ -1,10 +1,10 @@
 export default class Ghost {
   constructor(
-    scaledTileSize, mazeArray, pacman, name, level, characterUtil, blinky,
+    scaledTileSize, mazeArray, pacmanList, name, level, characterUtil, blinky,
   ) {
     this.scaledTileSize = scaledTileSize;
     this.mazeArray = mazeArray;
-    this.pacman = pacman;
+    this.pacmanList = pacmanList;
     this.name = name;
     this.level = level;
     this.characterUtil = characterUtil;
@@ -25,7 +25,7 @@ export default class Ghost {
     }
 
     this.setDefaultMode();
-    this.setMovementStats(this.pacman, this.name, this.level);
+    this.setMovementStats(this.pacmanList[0], this.name, this.level);
     this.setSpriteAnimationStats();
     this.setStyleMeasurements(this.scaledTileSize, this.spriteFrames);
     this.setDefaultPosition(this.scaledTileSize, this.name);
@@ -273,13 +273,38 @@ export default class Ghost {
   }
 
   /**
+   * Determines closest Pacman
+   * @param {{object}} gridPosition
+   * @param {{object}} pacmanList
+   * @returns {object}
+   */
+  determineClosestPacman(gridPosition, pacmanList) {
+    let closestPacmanDistance = 1000;
+    let closestPacman = pacmanList[0];
+
+    pacmanList.forEach((pacman, index) => {
+      let pacmanGridPosition = this.characterUtil.determineGridPosition(
+        pacman.position, this.scaledTileSize,
+      );
+      let distance = this.calculateDistance(gridPosition, pacmanGridPosition);
+      if (distance < closestPacmanDistance) {
+        closestPacmanDistance = distance;
+        closestPacman = pacman;        
+      }
+    });
+
+    //console.log("CLOSEST:" + closestPacman.name)
+    return closestPacman;
+  }
+
+  /**
    * Gets a position a number of spaces in front of Pacman's direction
    * @param {({x: number, y: number})} pacmanGridPosition
    * @param {number} spaces
    */
   getPositionInFrontOfPacman(pacmanGridPosition, spaces) {
     const target = Object.assign({}, pacmanGridPosition);
-    const pacDirection = this.pacman.direction;
+    const pacDirection = pacmanGridPosition.direction;
     const propToChange = (pacDirection === 'up' || pacDirection === 'down')
       ? 'y' : 'x';
     const tileOffset = (pacDirection === 'up' || pacDirection === 'left')
@@ -628,9 +653,15 @@ export default class Ghost {
     const gridPosition = this.characterUtil.determineGridPosition(
       this.position, this.scaledTileSize,
     );
+
+    let pacman = this.determineClosestPacman(gridPosition, this.pacmanList)
+    //TODO: am doing the below in determineClosestPacman - could perhaps just return from there 
     const pacmanGridPosition = this.characterUtil.determineGridPosition(
-      this.pacman.position, this.scaledTileSize,
+      pacman.position, this.scaledTileSize,
     );
+    //a bit of a hack!
+    pacmanGridPosition.direction = pacman.direction;
+
     const velocity = this.determineVelocity(
       gridPosition, this.mode,
     );
@@ -657,7 +688,7 @@ export default class Ghost {
       newPosition, this.scaledTileSize, this.mazeArray,
     );
 
-    this.checkCollision(gridPosition, pacmanGridPosition);
+    this.checkCollision(gridPosition, pacman, pacmanGridPosition);
 
     return newPosition;
   }
@@ -759,19 +790,24 @@ export default class Ghost {
    * @param {({x: number, y: number})} position - An x-y position on the 2D Maze Array
    * @param {({x: number, y: number})} pacman - Pacman's current x-y position on the 2D Maze Array
    */
-  checkCollision(position, pacman) {
-    if (this.calculateDistance(position, pacman) < 1
+  checkCollision(position, pacman, pacmanPosition) {
+    if (this.calculateDistance(position, pacmanPosition) < 1
       && this.mode !== 'eyes'
       && this.allowCollision) {
       if (this.mode === 'scared') {
         window.dispatchEvent(new CustomEvent('eatGhost', {
           detail: {
+            pacman: pacman,
             ghost: this,
           },
         }));
         this.mode = 'eyes';
       } else {
-        window.dispatchEvent(new Event('deathSequence'));
+        window.dispatchEvent(new CustomEvent('deathSequence', {
+          detail: {
+            pacman: pacman,
+          },
+        }));
       }
     }
   }

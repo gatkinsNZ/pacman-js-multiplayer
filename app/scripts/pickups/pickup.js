@@ -1,7 +1,7 @@
 export default class Pickup {
-  constructor(type, scaledTileSize, column, row, pacman, mazeDiv, points) {
+  constructor(type, scaledTileSize, column, row, pacmanList, mazeDiv, points) {
     this.type = type;
-    this.pacman = pacman;
+    this.pacmanList = pacmanList;
     this.mazeDiv = mazeDiv;
     this.points = points;
     this.nearPacman = false;
@@ -138,17 +138,22 @@ export default class Pickup {
    */
   checkPacmanProximity(maxDistance, pacmanCenter, debugging) {
     if (this.animationTarget.style.visibility !== 'hidden') {
-      const distance = Math.sqrt(
-        ((this.center.x - pacmanCenter.x) ** 2)
-        + ((this.center.y - pacmanCenter.y) ** 2),
-      );
 
-      this.nearPacman = (distance <= maxDistance);
+      this.nearPacman = true;
 
-      if (debugging) {
-        this.animationTarget.style.background = this.nearPacman
-          ? 'lime' : 'red';
-      }
+      //the below is actually defunct for multiple pacmans - as they will be spread out in maze and so a pickup will always be close
+      // const distance = Math.sqrt(
+      //   ((this.center.x - pacmanCenter.x) ** 2)
+      //   + ((this.center.y - pacmanCenter.y) ** 2),
+      // );
+
+      // this.nearPacman = (distance <= maxDistance);
+      // this.nearPacman = true;
+
+      // if (debugging) {
+      //   this.animationTarget.style.background = this.nearPacman
+      //     ? 'lime' : 'red';
+      // }
     }
   }
 
@@ -168,31 +173,37 @@ export default class Pickup {
    */
   update() {
     if (this.shouldCheckForCollision()) {
-      if (this.checkForCollision(
-        {
-          x: this.x,
-          y: this.y,
-          size: this.size,
-        }, {
-          x: this.pacman.position.left,
-          y: this.pacman.position.top,
-          size: this.pacman.measurement,
-        },
-      )) {
-        this.animationTarget.style.visibility = 'hidden';
-        window.dispatchEvent(new CustomEvent('awardPoints', {
-          detail: {
-            points: this.points,
-            type: this.type,
-          },
-        }));
+      for (let i = 0; i < this.pacmanList.length; i++) {
+        let pacman = this.pacmanList[i];
 
-        if (this.type === 'pacdot') {
-          window.dispatchEvent(new Event('dotEaten'));
-        } else if (this.type === 'powerPellet') {
-          window.dispatchEvent(new Event('dotEaten'));
-          window.dispatchEvent(new Event('powerUp'));
-        }
+        if (this.checkForCollision(
+          {
+            x: this.x,
+            y: this.y,
+            size: this.size,
+          }, {
+            x: pacman.position.left,
+            y: pacman.position.top,
+            size: pacman.measurement,
+          },
+        )) {
+          this.animationTarget.style.visibility = 'hidden';
+          window.dispatchEvent(new CustomEvent('awardPoints', {
+            detail: {
+              points: this.points,
+              type: this.type,
+            },
+          }));
+  
+          if (this.type === 'pacdot') {
+            window.dispatchEvent(new Event('dotEaten'));
+          } else if (this.type === 'powerPellet') {
+            window.dispatchEvent(new Event('dotEaten'));
+            window.dispatchEvent(new Event('powerUp'));
+          }
+
+          break; //no need to go through rest of pacmans
+        }      
       }
     }
   }

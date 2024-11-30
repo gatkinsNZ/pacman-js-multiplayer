@@ -96,15 +96,9 @@ export default class GameCoordinator {
       this.mazeArray[rowIndex] = row[0].split('');
     });
 
-    this.gameStartButton.addEventListener(
-      'click',
-      this.startButtonClick.bind(this),
-    );
+    this.gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
     this.pauseButton.addEventListener('click', this.handlePauseKey.bind(this));
-    this.soundButton.addEventListener(
-      'click',
-      this.soundButtonClick.bind(this),
-    );
+    this.soundButton.addEventListener('click', this.soundButtonClick.bind(this));
 
     this.preloadAssets()
   }
@@ -413,15 +407,30 @@ export default class GameCoordinator {
         this.collisionDetectionLoop();
       }, 500);
 
+      //TODO: needs to be changed to make dynamic
       this.pacman = new Pacman(
         this.scaledTileSize,
         this.mazeArray,
         new CharacterUtil(),
+        'pacman',
+        0,
+        2
       );
+      this.pacman2 = new Pacman(
+        this.scaledTileSize,
+        this.mazeArray,
+        new CharacterUtil(),
+        'pacman_george',
+        1,
+        2
+      );
+      this.pacmans = [this.pacman, this.pacman2];
+
+
       this.blinky = new Ghost(
         this.scaledTileSize,
         this.mazeArray,
-        this.pacman,
+        this.pacmans,
         'blinky',
         this.level,
         new CharacterUtil(),
@@ -429,7 +438,7 @@ export default class GameCoordinator {
       this.pinky = new Ghost(
         this.scaledTileSize,
         this.mazeArray,
-        this.pacman,
+        this.pacmans,
         'pinky',
         this.level,
         new CharacterUtil(),
@@ -437,7 +446,7 @@ export default class GameCoordinator {
       this.inky = new Ghost(
         this.scaledTileSize,
         this.mazeArray,
-        this.pacman,
+        this.pacmans,
         'inky',
         this.level,
         new CharacterUtil(),
@@ -446,7 +455,7 @@ export default class GameCoordinator {
       this.clyde = new Ghost(
         this.scaledTileSize,
         this.mazeArray,
-        this.pacman,
+        this.pacmans,
         'clyde',
         this.level,
         new CharacterUtil(),
@@ -456,14 +465,19 @@ export default class GameCoordinator {
         this.scaledTileSize,
         13.5,
         17,
-        this.pacman,
+        this.pacmans,
         this.mazeDiv,
         100,
       );
     }
 
+    this.ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
+    this.scaredGhosts = [];
+    this.eyeGhosts = 0;
+
     this.entityList = [
       this.pacman,
+      this.pacman2,
       this.blinky,
       this.pinky,
       this.inky,
@@ -471,17 +485,14 @@ export default class GameCoordinator {
       this.fruit,
     ];
 
-    this.ghosts = [this.blinky, this.pinky, this.inky, this.clyde];
-
-    this.scaredGhosts = [];
-    this.eyeGhosts = 0;
-
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
       this.soundManager = new SoundManager();
       this.setUiDimensions();
     } else {
-      this.pacman.reset();
+      this.pacmans.forEach((pacman) => {
+        pacman.reset(true);
+      });
       this.ghosts.forEach((ghost) => {
         ghost.reset(true);
       });
@@ -540,7 +551,7 @@ export default class GameCoordinator {
             this.scaledTileSize,
             columnIndex,
             rowIndex,
-            this.pacman,
+            this.pacmans,
             this.dotContainer,
             points,
           );
@@ -563,20 +574,28 @@ export default class GameCoordinator {
    * Pickups which are far away will not be considered for collision detection.
    */
   collisionDetectionLoop() {
-    if (this.pacman.position) {
-      const maxDistance = this.pacman.velocityPerMs * 750;
-      const pacmanCenter = {
-        x: this.pacman.position.left + this.scaledTileSize,
-        y: this.pacman.position.top + this.scaledTileSize,
-      };
+    this.pickups.forEach((pickup) => {
+      pickup.checkPacmanProximity(null, null, false);
+    });
 
-      // Set this flag to TRUE to see how two-phase collision detection works!
-      const debugging = false;
+    //the below is actually defunct for multiple pacmans - as they will be spread out in maze and so a pickup will always be close
+    // this.pacmans.forEach((pacman) => {
+    //   if (pacman.position) {
+    //     const maxDistance = pacman.velocityPerMs * 750;
+    //     const pacmanCenter = {
+    //       x: pacman.position.left + this.scaledTileSize,
+    //       y: pacman.position.top + this.scaledTileSize,
+    //     };
 
-      this.pickups.forEach((pickup) => {
-        pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
-      });
-    }
+    //     // Set this flag to TRUE to see how two-phase collision detection works!
+    //     const debugging = false;
+
+    //     this.pickups.forEach((pickup) => {
+    //       //console.log("pickup check" + pacman.name);
+    //       pickup.checkPacmanProximity(maxDistance, pacmanCenter, debugging);
+    //     });
+    //   }
+    // });
   }
 
   /**
@@ -608,7 +627,6 @@ export default class GameCoordinator {
       this.soundManager.setAmbience(this.determineSiren(this.remainingDots));
 
       this.allowPacmanMovement = true;
-      this.pacman.moving = true;
 
       this.ghosts.forEach((ghost) => {
         const ghostRef = ghost;
@@ -701,6 +719,8 @@ export default class GameCoordinator {
    * Register listeners for various game sequences
    */
   registerEventListeners() {
+    window.addEventListener('gamepadconnected', this.gamepadConnected.bind(this));
+    window.addEventListener('gamepaddisconnected', this.gamepadDisconnected.bind(this));
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
@@ -718,7 +738,7 @@ export default class GameCoordinator {
       document
         .getElementById(`button-${direction}`)
         .addEventListener('touchstart', () => {
-          this.changeDirection(direction);
+          this.changeDirection(this.pacmans[0], direction);
         }, { passive: true} );
     });
   }
@@ -727,10 +747,30 @@ export default class GameCoordinator {
    * Calls Pacman's changeDirection event if certain conditions are met
    * @param {({'up'|'down'|'left'|'right'})} direction
    */
-  changeDirection(direction) {
+  changeDirection(pacman, direction) {
     if (this.allowKeyPresses && this.gameEngine.running) {
-      this.pacman.changeDirection(direction, this.allowPacmanMovement);
+      pacman.changeDirection(direction, this.allowPacmanMovement);
     }
+  }
+
+  gamepadConnected(e) {
+    console.log(
+        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
+        e.gamepad.index,
+        e.gamepad.id,
+        e.gamepad.buttons.length,
+        e.gamepad.axes.length,
+    );
+    console.log(e.gamepad);
+  }
+
+  gamepadDisconnected(e) {
+    console.log(
+        "Gamepad disconnected from index %d: %s",
+        e.gamepad.index,
+        e.gamepad.id,
+        );
+    console.log(e.gamepad);
   }
 
   /**
@@ -745,7 +785,11 @@ export default class GameCoordinator {
       // Q
       this.soundButtonClick();
     } else if (this.movementKeys[e.keyCode]) {
-      this.changeDirection(this.movementKeys[e.keyCode]);
+      //TODO: needs to be made for dynamic numebr of pacmen
+      if(this.pacmans.length > 1 && e.keyCode > 41)
+        this.changeDirection(this.pacmans[0], this.movementKeys[e.keyCode]);
+      else
+        this.changeDirection(this.pacmans[1], this.movementKeys[e.keyCode]);
     }
   }
 
@@ -830,7 +874,9 @@ export default class GameCoordinator {
    * Animates Pacman's death, subtracts a life, and resets character positions if
    * the player has remaining lives.
    */
-  deathSequence() {
+  deathSequence(e) {
+    const pacman = e.detail.pacman;
+
     this.allowPause = false;
     this.cutscene = true;
     this.soundManager.setCutscene(this.cutscene);
@@ -841,7 +887,10 @@ export default class GameCoordinator {
     this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
 
     this.allowKeyPresses = false;
-    this.pacman.moving = false;
+    //stop all pacmans - makes more consistent
+    this.pacmans.forEach((pacman) => {
+      pacman.moving = false;
+    });
     this.ghosts.forEach((ghost) => {
       const ghostRef = ghost;
       ghostRef.moving = false;
@@ -852,7 +901,7 @@ export default class GameCoordinator {
         const ghostRef = ghost;
         ghostRef.display = false;
       });
-      this.pacman.prepDeathAnimation();
+      pacman.prepDeathAnimation();
       this.soundManager.play('death');
 
       if (this.lives > 0) {
@@ -863,7 +912,9 @@ export default class GameCoordinator {
           new Timer(() => {
             this.allowKeyPresses = true;
             this.mazeCover.style.visibility = 'hidden';
-            this.pacman.reset();
+            this.pacmans.forEach((pacman) => {
+              pacman.reset();
+            });
             this.ghosts.forEach((ghost) => {
               ghost.reset();
             });
@@ -1112,6 +1163,7 @@ export default class GameCoordinator {
   eatGhost(e) {
     const pauseDuration = 1000;
     const { position, measurement } = e.detail.ghost;
+    const pacman = e.detail.pacman;
 
     this.pauseTimer({ detail: { timer: this.ghostFlashTimer } });
     this.pauseTimer({ detail: { timer: this.ghostCycleTimer } });
@@ -1135,8 +1187,11 @@ export default class GameCoordinator {
     this.displayText(position, comboPoints, pauseDuration, measurement);
 
     this.allowPacmanMovement = false;
-    this.pacman.display = false;
-    this.pacman.moving = false;
+    pacman.display = false;
+    this.pacmans.forEach((pac) => {
+      pac.moving = false;
+    });
+    
     e.detail.ghost.display = false;
     e.detail.ghost.moving = false;
 
@@ -1154,8 +1209,10 @@ export default class GameCoordinator {
       this.resumeTimer({ detail: { timer: this.ghostCycleTimer } });
       this.resumeTimer({ detail: { timer: this.fruitTimer } });
       this.allowPacmanMovement = true;
-      this.pacman.display = true;
-      this.pacman.moving = true;
+      pacman.display = true;
+      this.pacmans.forEach((pac) => {
+        pac.moving = true;
+      });
       e.detail.ghost.display = true;
       e.detail.ghost.moving = true;
       this.ghosts.forEach((ghost) => {
