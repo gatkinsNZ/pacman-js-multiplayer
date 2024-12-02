@@ -8,6 +8,7 @@ export default class Pacman {
     this.pacmanIndex = pacmanIndex;
     this.totalPacmans = totalPacmans;
     this.name = name;
+    this.enabled = true;
 
     this.reset();
   }
@@ -33,23 +34,19 @@ export default class Pacman {
     this.velocityPerMs = this.calculateVelocityPerMs(scaledTileSize);
     this.moving = false;
 
-    //TODO: needs to be made dynamic for number of pacmen
-    if (totalPacmans == 1) {
-      this.desiredDirection = this.characterUtil.directions.left;
-      this.direction = this.characterUtil.directions.left;
-    }
-    else {
-      switch (pacmanIndex) {
-        case 0:
-          this.desiredDirection = this.characterUtil.directions.left;
-          this.direction = this.characterUtil.directions.left;
-          break;
-        case 1:
-          this.desiredDirection = this.characterUtil.directions.right;
-          this.direction = this.characterUtil.directions.right;
-          break;
-      }
-    }    
+    //defaults
+    switch (pacmanIndex) {
+      case 0:
+      case 2:
+        this.desiredDirection = this.characterUtil.directions.left;
+        this.direction = this.characterUtil.directions.left;
+        break;
+      case 1:
+      case 3:
+        this.desiredDirection = this.characterUtil.directions.right;
+        this.direction = this.characterUtil.directions.right;
+        break;
+    }   
   }
 
   /**
@@ -57,7 +54,7 @@ export default class Pacman {
    */
   setSpriteAnimationStats() {
     this.specialAnimation = false;
-    this.display = true;
+    this.display = this.enabled;
     this.animate = true;
     this.loopAnimation = true;
     this.msBetweenSprites = 50;
@@ -95,29 +92,31 @@ export default class Pacman {
    * @param {number} scaledTileSize - The dimensions of a single tile
    */
   setDefaultPosition(scaledTileSize, pacmanIndex, totalPacmans) {
-    //TODO: needs to be made more dynamic
+    let leftPos = 13
+
     if(totalPacmans == 1) {
-      this.defaultPosition = {
-        top: scaledTileSize * 22.5,
-        left: scaledTileSize * 13,
-      };
+      leftPos = 13;
     }
     else {
       switch (pacmanIndex) {
-        case 0:
-          this.defaultPosition = {
-            top: scaledTileSize * 22.5,
-            left: scaledTileSize * 11.5,
-          };
+        case 0: 
+          leftPos = 11.5;
           break;
         case 1:
-          this.defaultPosition = {
-            top: scaledTileSize * 22.5,
-            left: scaledTileSize * 14.5,
-          };
+          leftPos = 14.5;
+          break;
+        case 2:
+          leftPos = 8.5;
+          break;
+        case 3:
+          leftPos = 17.5;
           break;
       }
     }
+    this.defaultPosition = {
+      top: scaledTileSize * 22.5,
+      left: scaledTileSize * leftPos,
+    };
     this.position = Object.assign({}, this.defaultPosition);
     this.oldPosition = Object.assign({}, this.position);
     this.animationTarget.style.top = `${this.position.top}px`;
@@ -277,30 +276,33 @@ export default class Pacman {
    * @param {number} elapsedMs - The amount of MS that have passed since the last update
    */
   update(elapsedMs) {
-    this.oldPosition = Object.assign({}, this.position);
+    if (this.enabled)
+    {
+      this.oldPosition = Object.assign({}, this.position);
 
-    if (this.moving) {
-      const gridPosition = this.characterUtil.determineGridPosition(
-        this.position, this.scaledTileSize,
-      );
+      if (this.moving) {
+        const gridPosition = this.characterUtil.determineGridPosition(
+          this.position, this.scaledTileSize,
+        );
 
-      if (JSON.stringify(this.position) === JSON.stringify(
-        this.characterUtil.snapToGrid(
-          gridPosition, this.direction, this.scaledTileSize,
-        ),
-      )) {
-        this.position = this.handleSnappedMovement(elapsedMs);
-      } else {
-        this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);
+        if (JSON.stringify(this.position) === JSON.stringify(
+          this.characterUtil.snapToGrid(
+            gridPosition, this.direction, this.scaledTileSize,
+          ),
+        )) {
+          this.position = this.handleSnappedMovement(elapsedMs);
+        } else {
+          this.position = this.handleUnsnappedMovement(gridPosition, elapsedMs);
+        }
+
+        this.position = this.characterUtil.handleWarp(
+          this.position, this.scaledTileSize, this.mazeArray,
+        );
       }
 
-      this.position = this.characterUtil.handleWarp(
-        this.position, this.scaledTileSize, this.mazeArray,
-      );
-    }
-
-    if (this.moving || this.specialAnimation) {
-      this.msSinceLastSprite += elapsedMs;
+      if (this.moving || this.specialAnimation) {
+        this.msSinceLastSprite += elapsedMs;
+      }
     }
   }
 }

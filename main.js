@@ -15,25 +15,41 @@ let gameCoordinator = new GameCoordinator();
 //import gameControl from 'gamecontroller.js';
 //import {gameControl} from 'gamecontroller.js';
 
-import gameControl from './app/scripts/utilities/controller/gamecontrol.js';
+// import gameControl from './app/scripts/utilities/controller/gamecontrol.js';
 
-gameControl.on('connect', gamepad => {
-    gamepad.set('axeThreshold', 0.85);
-    console.log('A new gamepad was connected!');
-    console.log(gamepad);
+// gameControl.on('connect', gamepad => {
+//     gamepad.set('axeThreshold', 0.85); //lowering
+//     console.log('A new gamepad was connected!');
+//     console.log(gamepad);
       
-    gamepad.before('up', function() {
-        console.log('up');
-    });
+//     gamepad.before('up', function() {
+//         console.log('up');
+//     });
 
-    gamepad.before('left', function() {
-        console.log('left');
-    });
-});
+//     gamepad.before('left', function() {
+//         console.log('left');
+//     });
 
-gameControl.on('disconnect', gamepad => {
-    console.log('A new gamepad was disconnected!');
-});
+//     gamepad.before('right', function() {
+//         console.log('right');
+//     });
+
+//     gamepad.before('down', function() {
+//         console.log('down');
+//     });
+
+//     gamepad.before('button12', function() {
+//         console.log('up');
+//     });
+
+//     gamepad.before('button14', function() {
+//         console.log('left');
+//     });
+// });
+
+// gameControl.on('disconnect', gamepad => {
+//     console.log('A new gamepad was disconnected!');
+// });
 
 // //TODO: below can be removed after testing
 // const gamepads = {};

@@ -55,42 +55,47 @@ const gamepad = {
         }
       },
       checkStatus: function() {
-        let gp = {};
-        const gps = navigator.getGamepads
-          ? navigator.getGamepads()
-          : navigator.webkitGetGamepads
-          ? navigator.webkitGetGamepads()
-          : [];
+        try {
 
-        if (gps.length) {
-          gp = gps[this.id];
-          if (gp.buttons) {
-            for (let x = 0; x < this.buttons; x++) {
-              if (gp.buttons[x].pressed === true) {
-                if (!this.pressed[`button${x}`]) {
-                  this.pressed[`button${x}`] = true;
-                  this.buttonActions[x].before();
+          let gp = {};
+          const gps = navigator.getGamepads
+            ? navigator.getGamepads()
+            : navigator.webkitGetGamepads
+            ? navigator.webkitGetGamepads()
+            : [];
+
+          if (gps.length) {
+            gp = gps[this.id];
+            if (gp.buttons) {
+              for (let x = 0; x < this.buttons; x++) {
+                if (gp.buttons[x].pressed === true) {
+                  if (!this.pressed[`button${x}`]) {
+                    this.pressed[`button${x}`] = true;
+                    this.buttonActions[x].before();
+                  }
+                  this.buttonActions[x].action();
+                } else if (this.pressed[`button${x}`]) {
+                  delete this.pressed[`button${x}`];
+                  this.buttonActions[x].after();
                 }
-                this.buttonActions[x].action();
-              } else if (this.pressed[`button${x}`]) {
-                delete this.pressed[`button${x}`];
-                this.buttonActions[x].after();
+              }
+            }
+            if (gp.axes) {
+              const modifier = gp.axes.length % 2; // Firefox hack: detects one additional axe
+              for (let x = 0; x < this.axes * 2; x++) {
+                const val = gp.axes[x + modifier].toFixed(4);
+                const axe = Math.floor(x / 2);
+                this.axeValues[axe][x % 2] = val;
+
+                this.triggerDirectionalAction('right', axe, val >= this.axeThreshold[0], x, 0);
+                this.triggerDirectionalAction('left', axe, val <= -this.axeThreshold[0], x, 0);
+                this.triggerDirectionalAction('down', axe, val >= this.axeThreshold[0], x, 1);
+                this.triggerDirectionalAction('up', axe, val <= -this.axeThreshold[0], x, 1);
               }
             }
           }
-          if (gp.axes) {
-            const modifier = gp.axes.length % 2; // Firefox hack: detects one additional axe
-            for (let x = 0; x < this.axes * 2; x++) {
-              const val = gp.axes[x + modifier].toFixed(4);
-              const axe = Math.floor(x / 2);
-              this.axeValues[axe][x % 2] = val;
-
-              this.triggerDirectionalAction('right', axe, val >= this.axeThreshold[0], x, 0);
-              this.triggerDirectionalAction('left', axe, val <= -this.axeThreshold[0], x, 0);
-              this.triggerDirectionalAction('down', axe, val >= this.axeThreshold[0], x, 1);
-              this.triggerDirectionalAction('up', axe, val <= -this.axeThreshold[0], x, 1);
-            }
-          }
+        } catch (error) {
+          console.log("There was an error reading controller status, it may have disconnected: " + error)
         }
       },
       associateEvent: function(eventName, callback, type) {

@@ -176,34 +176,36 @@ export default class Pickup {
       for (let i = 0; i < this.pacmanList.length; i++) {
         let pacman = this.pacmanList[i];
 
-        if (this.checkForCollision(
-          {
-            x: this.x,
-            y: this.y,
-            size: this.size,
-          }, {
-            x: pacman.position.left,
-            y: pacman.position.top,
-            size: pacman.measurement,
-          },
-        )) {
-          this.animationTarget.style.visibility = 'hidden';
-          window.dispatchEvent(new CustomEvent('awardPoints', {
-            detail: {
-              points: this.points,
-              type: this.type,
+        if(pacman.enabled) {
+          if (this.checkForCollision(
+            {
+              x: this.x,
+              y: this.y,
+              size: this.size,
+            }, {
+              x: pacman.position.left,
+              y: pacman.position.top,
+              size: pacman.measurement,
             },
-          }));
-  
-          if (this.type === 'pacdot') {
-            window.dispatchEvent(new Event('dotEaten'));
-          } else if (this.type === 'powerPellet') {
-            window.dispatchEvent(new Event('dotEaten'));
-            window.dispatchEvent(new Event('powerUp'));
-          }
+          )) {
+            this.animationTarget.style.visibility = 'hidden';
+            window.dispatchEvent(new CustomEvent('awardPoints', {
+              detail: {
+                points: this.points,
+                type: this.type,
+              },
+            }));
+    
+            if (this.type === 'pacdot') {
+              window.dispatchEvent(new Event('dotEaten'));
+            } else if (this.type === 'powerPellet') {
+              window.dispatchEvent(new Event('dotEaten'));
+              window.dispatchEvent(new Event('powerUp'));
+            }
 
-          break; //no need to go through rest of pacmans
-        }      
+            break; //no need to go through rest of pacmans
+          }
+        }    
       }
     }
   }

@@ -5,6 +5,7 @@ import Pickup from '/app/scripts/pickups/pickup.js'
 import CharacterUtil from '/app/scripts/utilities/characterUtil.js'
 import SoundManager from '/app/scripts/utilities/soundManager.js'
 import Timer from '/app/scripts/utilities/timer.js'
+import gameControl from '/app/scripts/utilities/controller/gamecontrol.js';
 
 export default class GameCoordinator {
   constructor() {
@@ -16,6 +17,7 @@ export default class GameCoordinator {
     this.pointsDisplay = document.getElementById('points-display');
     this.highScoreDisplay = document.getElementById('high-score-display');
     this.extraLivesDisplay = document.getElementById('extra-lives');
+    this.levelDisplay = document.getElementById('level-display');
     this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
@@ -26,6 +28,7 @@ export default class GameCoordinator {
     this.pausedText = document.getElementById('paused-text');
     this.bottomRow = document.getElementById('bottom-row');
     this.movementButtons = document.getElementById('movement-buttons');
+    this.gamepadInfoText = document.getElementById("gamepad-info");
 
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
@@ -99,6 +102,7 @@ export default class GameCoordinator {
     this.gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
     this.pauseButton.addEventListener('click', this.handlePauseKey.bind(this));
     this.soundButton.addEventListener('click', this.soundButtonClick.bind(this));
+    this.registerControllers();
 
     this.preloadAssets()
   }
@@ -392,6 +396,10 @@ export default class GameCoordinator {
   reset() {
     this.activeTimers = [];
     this.points = 0;
+    this.speedLevel = 1;
+    this.pacmenOnLevel = 4;
+    this.horizontalControlsReversed = false;
+    this.verticalControlsReversed = false;
     this.level = 1;
     this.lives = 2;
     this.extraLifeGiven = false;
@@ -414,17 +422,34 @@ export default class GameCoordinator {
         new CharacterUtil(),
         'pacman',
         0,
-        2
+        4
       );
+      this.pacman.enabled = true;
       this.pacman2 = new Pacman(
         this.scaledTileSize,
         this.mazeArray,
         new CharacterUtil(),
         'pacman_george',
         1,
-        2
+        4
       );
-      this.pacmans = [this.pacman, this.pacman2];
+      this.pacman3 = new Pacman(
+        this.scaledTileSize,
+        this.mazeArray,
+        new CharacterUtil(),
+        'pacman_george2',
+        2,
+        4
+      );
+      this.pacman4 = new Pacman(
+        this.scaledTileSize,
+        this.mazeArray,
+        new CharacterUtil(),
+        'pacman_george3',
+        3,
+        4
+      );
+      this.pacmans = [this.pacman, this.pacman2, this.pacman3, this.pacman4];
 
 
       this.blinky = new Ghost(
@@ -432,7 +457,7 @@ export default class GameCoordinator {
         this.mazeArray,
         this.pacmans,
         'blinky',
-        this.level,
+        this.speedLevel,
         new CharacterUtil(),
       );
       this.pinky = new Ghost(
@@ -440,7 +465,7 @@ export default class GameCoordinator {
         this.mazeArray,
         this.pacmans,
         'pinky',
-        this.level,
+        this.speedLevel,
         new CharacterUtil(),
       );
       this.inky = new Ghost(
@@ -448,7 +473,7 @@ export default class GameCoordinator {
         this.mazeArray,
         this.pacmans,
         'inky',
-        this.level,
+        this.speedLevel,
         new CharacterUtil(),
         this.blinky,
       );
@@ -457,7 +482,7 @@ export default class GameCoordinator {
         this.mazeArray,
         this.pacmans,
         'clyde',
-        this.level,
+        this.speedLevel,
         new CharacterUtil(),
       );
       this.fruit = new Pickup(
@@ -478,6 +503,8 @@ export default class GameCoordinator {
     this.entityList = [
       this.pacman,
       this.pacman2,
+      this.pacman3,
+      this.pacman4,
       this.blinky,
       this.pinky,
       this.inky,
@@ -525,6 +552,10 @@ export default class GameCoordinator {
 
     this.gameEngine = new GameEngine(this.maxFps, this.entityList);
     this.gameEngine.start();
+  }
+
+  isMainMenuDisplaying() {
+    return this.mainMenu.style.opacity == 1
   }
 
   /**
@@ -617,6 +648,7 @@ export default class GameCoordinator {
     const width = this.scaledTileSize * 6;
     const height = this.scaledTileSize * 2;
 
+    this.levelDisplay.innerHTML = this.level;
     this.displayText({ left, top }, 'ready', duration, width, height);
     this.updateExtraLivesDisplay();
 
@@ -706,7 +738,7 @@ export default class GameCoordinator {
    */
   releaseGhost() {
     if (this.idleGhosts.length > 0) {
-      const delay = Math.max((8 - (this.level - 1) * 4) * 1000, 0);
+      const delay = Math.max((8 - (this.speedLevel - 1) * 4) * 1000, 0);
 
       this.endIdleTimer = new Timer(() => {
         this.idleGhosts[0].endIdleMode();
@@ -719,8 +751,6 @@ export default class GameCoordinator {
    * Register listeners for various game sequences
    */
   registerEventListeners() {
-    window.addEventListener('gamepadconnected', this.gamepadConnected.bind(this));
-    window.addEventListener('gamepaddisconnected', this.gamepadDisconnected.bind(this));
     window.addEventListener('keydown', this.handleKeyDown.bind(this));
     window.addEventListener('awardPoints', this.awardPoints.bind(this));
     window.addEventListener('deathSequence', this.deathSequence.bind(this));
@@ -734,6 +764,7 @@ export default class GameCoordinator {
 
     const directions = ['up', 'down', 'left', 'right'];
 
+    //onscreen controls - not currently working
     directions.forEach((direction) => {
       document
         .getElementById(`button-${direction}`)
@@ -743,34 +774,211 @@ export default class GameCoordinator {
     });
   }
 
+  registerControllers() {
+    gameControl.on('connect', gamepad => {
+      gamepad.set('axeThreshold', 0.85); //lowering
+      console.log('A new gamepad was connected!');
+      console.log(gamepad);
+
+      let controllers = gameControl.getGamepads();
+      let numberOfControllers = Object.keys(controllers).length
+      if(numberOfControllers >= 2)
+      {  
+        console.log(numberOfControllers + ' controllers connected');
+        this.gameStartButton.disabled = false;
+        this.gamepadInfoText.textContent = numberOfControllers + " controllers connected.\r\n You can start the game by pressing A";
+        if (!this.isMainMenuDisplaying()) 
+          this.handlePauseKey();
+      }
+      else {
+        this.gamepadInfoText.textContent = "Only " + numberOfControllers + " controllers connected.\r\n Waiting for 4 gamepads to connect...\r\n(turn on and press A)";
+      }
+
+      //A button
+      gamepad.before('button0', () => {
+        //if in main menu and can start game (e.g. have correct numbner of controllers), start it
+        if (this.isMainMenuDisplaying()) {
+          if(!this.gameStartButton.disabled)
+            this.startButtonClick();
+        }          
+      });
+
+      //D-pad
+      gamepad.before('button12', () => {
+        this.controllerToPacmanMap(gamepad, "up");
+      });
+
+      gamepad.before('button13', () => {
+        this.controllerToPacmanMap(gamepad, "down");
+      });
+  
+      gamepad.before('button14', () => {
+        this.controllerToPacmanMap(gamepad, "left");
+      });
+
+      gamepad.before('button15', () => {
+        this.controllerToPacmanMap(gamepad, "right");
+      });
+        
+      //left analog stick
+      gamepad.before('up', () => {
+        this.controllerToPacmanMap(gamepad, "up");
+      });
+
+      gamepad.before('down', () => {
+        this.controllerToPacmanMap(gamepad, "down");
+      });
+
+      gamepad.before('left', () => {
+        this.controllerToPacmanMap(gamepad, "left");
+      });
+
+      gamepad.before('right', () => {
+        this.controllerToPacmanMap(gamepad, "right");
+          // this.horizontalControlsReversed = true;
+          //               this.verticalControlsReversed = true;
+      });
+
+      // //D-pad
+      // gamepad.before('button12', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "up");
+      // });
+
+      // gamepad.before('button13', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "down");
+      // });
+  
+      // gamepad.before('button14', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "left");
+      // });
+
+      // gamepad.before('button15', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "right");
+      // });
+        
+      // //left analog stick
+      // gamepad.before('up', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "up");
+      // });
+
+      // gamepad.before('down', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "down");
+      // });
+
+      // gamepad.before('left', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "left");
+      // });
+
+      // gamepad.before('right', () => {
+      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "right");
+      //     // this.horizontalControlsReversed = true;
+      //     //               this.verticalControlsReversed = true;
+      // });
+
+      
+  
+      
+    });
+    
+    gameControl.on('disconnect', gamepad => {
+        console.log('A gamepad was disconnected!');
+        let controllers = gameControl.getGamepads();
+        let numberOfControllers = Object.keys(controllers).length;
+
+        if(numberOfControllers < 2)
+        {  
+          console.log('Only ' + numberOfControllers + ' controllers connected');
+          this.gameStartButton.disabled = true;
+          this.gamepadInfoText.textContent = "Only " + numberOfControllers + " controllers connected.\r\n Waiting for 4 gamepads to connect...\r\n(turn on and press A)";
+          if (this.gameEngine.running)
+            this.handlePauseKey();
+        }
+        else {
+          this.gamepadInfoText.textContent = numberOfControllers + " controllers connected.\r\n You can start the game by pressing A";
+        }   
+    });
+  }
+
+  controllerToPacmanMap(gamepad, direction)
+  {
+    let controllerNumber = parseInt(gamepad.id)
+    console.log("controller: " + controllerNumber)
+
+    if(controllerNumber <= this.pacmans.length) {
+      if(this.pacmenOnLevel == 4)
+        this.changeDirection(this.pacmans[controllerNumber], direction);
+      else if (this.pacmenOnLevel == 2) {
+        let pacman = this.pacmans[0];
+
+        if(controllerNumber > 1)
+          pacman = this.pacmans[1];
+
+        if((controllerNumber == 0 || controllerNumber == 2) && (direction == "up" || direction =="down"))
+          this.changeDirection(pacman, direction);
+        else if((controllerNumber == 1 || controllerNumber == 3) && (direction == "left" || direction =="right"))
+          this.changeDirection(pacman, direction);
+      }
+      else if (this.pacmenOnLevel == 1) {
+        let pacman = this.pacmans[0];
+
+        if(controllerNumber == 0 && direction == "up")
+          this.changeDirection(pacman, direction);
+        else if(controllerNumber == 1 && direction == "down")
+          this.changeDirection(pacman, direction);
+        else if(controllerNumber == 2 && direction == "left")
+          this.changeDirection(pacman, direction);
+        else if(controllerNumber == 3 && direction == "right")
+          this.changeDirection(pacman, direction);
+      }
+
+
+        // } else
+        // if(controllerNumber == 3 && (direction == "up" || direction =="down"))
+        //   this.changeDirection(this.pacmans[1], direction);
+        // else if(controllerNumber == 4 && (direction == "left" || direction =="right"))
+        //   this.changeDirection(this.pacmans[1], direction);
+    }
+    else
+      console.log("Too many controllers!")
+  }
+
+  // controllerToPacmanMap(gamepad, direction)
+  // {
+  //   let controllerNumber = parseInt(gamepad.id)
+
+  //   if(controllerNumber <= this.pacmans.length) {
+  //     if(this.pacmenOnLevel == 4)
+  //       return this.pacmans[controllerNumber];
+  //     else if (this.pacmenOnLevel == 2)
+  //       if(controllerNumber)
+  //       return this.pacmans[controllerNumber % 1];
+  //   }
+  //   else
+  //     return this.pacmans[1];
+  // }
+
   /**
    * Calls Pacman's changeDirection event if certain conditions are met
    * @param {({'up'|'down'|'left'|'right'})} direction
    */
   changeDirection(pacman, direction) {
     if (this.allowKeyPresses && this.gameEngine.running) {
+      if (this.horizontalControlsReversed) {
+        if (direction == 'left')
+          direction = 'right'
+        else if (direction == 'right')
+          direction = 'left'
+      }
+
+      if (this.verticalControlsReversed) {
+        if (direction == 'up')
+          direction = 'down'
+        else if (direction == 'down')
+          direction = 'up'
+      }
+
       pacman.changeDirection(direction, this.allowPacmanMovement);
     }
-  }
-
-  gamepadConnected(e) {
-    console.log(
-        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
-        e.gamepad.index,
-        e.gamepad.id,
-        e.gamepad.buttons.length,
-        e.gamepad.axes.length,
-    );
-    console.log(e.gamepad);
-  }
-
-  gamepadDisconnected(e) {
-    console.log(
-        "Gamepad disconnected from index %d: %s",
-        e.gamepad.index,
-        e.gamepad.id,
-        );
-    console.log(e.gamepad);
   }
 
   /**
@@ -787,9 +995,9 @@ export default class GameCoordinator {
     } else if (this.movementKeys[e.keyCode]) {
       //TODO: needs to be made for dynamic numebr of pacmen
       if(this.pacmans.length > 1 && e.keyCode > 41)
-        this.changeDirection(this.pacmans[0], this.movementKeys[e.keyCode]);
-      else
         this.changeDirection(this.pacmans[1], this.movementKeys[e.keyCode]);
+      else
+        this.changeDirection(this.pacmans[0], this.movementKeys[e.keyCode]);
     }
   }
 
@@ -977,7 +1185,13 @@ export default class GameCoordinator {
       this.speedUpBlinky();
     }
 
-    if (this.remainingDots === 0) {
+    // if (this.remainingDots === 0) {
+    //   this.advanceLevel();
+    // }
+
+    //TODO: change back
+    if (this.remainingDots === 220) {
+      this.remainingDots = 0;
       this.advanceLevel();
     }
   }
@@ -1067,11 +1281,75 @@ export default class GameCoordinator {
                   new Timer(() => {
                     this.mazeCover.style.visibility = 'hidden';
                     this.level += 1;
+                    this.pacmenOnLevel = 4
+                    this.speedLevel = 1;
+                    this.horizontalControlsReversed = false;
+                    this.verticalControlsReversed = false;
+                    switch(this.level) {
+                      case 1:
+                        this.speedLevel = 1;
+                        break;
+                      case 2:
+                        this.pacmenOnLevel = 2
+                        this.speedLevel = 5;
+                        break;
+                      case 3:
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        break;
+                      case 4:
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        this.verticalControlsReversed = true;
+                        break;
+                      case 5:
+                        this.pacmenOnLevel = 2
+                        this.speedLevel = 1;
+                        break;
+                      case 6:
+                        this.pacmenOnLevel = 2
+                        this.speedLevel = 5;
+                        break;
+                      case 7:
+                        this.pacmenOnLevel = 2
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        break;
+                      case 8:
+                        this.pacmenOnLevel = 2
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        this.verticalControlsReversed = true;
+                        break;
+                      case 9:
+                        this.pacmenOnLevel = 1
+                        this.speedLevel = 1;
+                        break;
+                      case 10:
+                        this.pacmenOnLevel = 1
+                        this.speedLevel = 5;
+                        break;
+                      case 11:
+                        this.pacmenOnLevel = 1
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        break;
+                      case 12:
+                        this.pacmenOnLevel = 1
+                        this.speedLevel = 5;
+                        this.horizontalControlsReversed = true;
+                        this.verticalControlsReversed = true;
+                        break;
+                    }
+
                     this.allowKeyPresses = true;
                     this.entityList.forEach((entity) => {
                       const entityRef = entity;
                       if (entityRef.level) {
-                        entityRef.level = this.level;
+                        entityRef.level = this.speedLevel;
+                      }
+                      if (entityRef instanceof Pacman) {
+                        entityRef.enabled = (entityRef.pacmanIndex < this.pacmenOnLevel);
                       }
                       entityRef.reset();
                       if (entityRef instanceof Ghost) {
@@ -1143,7 +1421,7 @@ export default class GameCoordinator {
       ghost.becomeScared();
     });
 
-    const powerDuration = Math.max((7 - this.level) * 1000, 0);
+    const powerDuration = Math.max((7 - this.speedLevel) * 1000, 0);
     this.ghostFlashTimer = new Timer(() => {
       this.flashGhosts(0, 9);
     }, powerDuration);

@@ -34,14 +34,14 @@
 
       <div id='main-menu-container' class='main-menu-container'>
         <img id='logo' class='logo' src='app/style/graphics/pacman_logo.png'>
-        <button id='game-start' class='game-start'>
+        <button id='game-start' class='game-start' disabled>
           PLAY
         </button>
         <!-- TODO: below can be removed after testing -->
         <button id='demo-start' class='game-start'>
           PLAY DEMO
         </button>
-        <p id="gamepad-info">Waiting for Gamepad.</p>
+        <p id="gamepad-info" style="white-space: pre-line; text-align: center;">Waiting for Gamepads to connect...</p>
         <div id="ball"></div>
       </div>
 
@@ -56,19 +56,25 @@
         </button>
       </div>
 
-      <div id='paused-text' class='paused-text'>
-        PAUSED
+      <div id='paused-text' class='paused-text' style="text-align: center;">
+        PAUSED 
+        <br/>
+        waiting for controllers to connect
       </div>
 
       <div id='game-ui' class='game-ui'>
         <div id='row-top' class='row top'>
           <div class='column _25'>
             <div class='one-up'>1UP</div>
-            <div id='points-display'></div>
+            <div id='points-display' style="text-align: center;"></div>
           </div>
           <div class='column _50'>
             <div>HIGH SCORE</div>
             <div id='high-score-display'></div>
+          </div>
+          <div class='column _75'>
+            <div>Level</div>
+            <div id='level-display' style="text-align: center;"></div>
           </div>
         </div>
 
@@ -80,6 +86,10 @@
           <p id='pacman-arrow' class='pacman'></p>
           <p id='pacman_george' class='pacman'></p>
           <p id='pacman_george-arrow' class='pacman'></p>
+          <p id='pacman_george2' class='pacman'></p>
+          <p id='pacman_george2-arrow' class='pacman'></p>
+          <p id='pacman_george3' class='pacman'></p>
+          <p id='pacman_george3-arrow' class='pacman'></p>
           <p id='clyde' class='ghost'></p>
           <p id='inky' class='ghost'></p>
           <p id='pinky' class='ghost'></p>

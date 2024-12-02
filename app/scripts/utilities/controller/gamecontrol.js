@@ -47,8 +47,12 @@ const gameControl = {
 
     gameControl.onBeforeCycle();
 
-    for (let x = 0; x < gamepadIds.length; x++) {
-      gameControl.gamepads[gamepadIds[x]].checkStatus();
+    try {
+      for (let x = 0; x < gamepadIds.length; x++) {
+        gameControl.gamepads[gamepadIds[x]].checkStatus();
+      }
+    } catch (error){
+      console.log("There was an error reading controller status, it may have disconnected: " + error)
     }
 
     gameControl.onAfterCycle();

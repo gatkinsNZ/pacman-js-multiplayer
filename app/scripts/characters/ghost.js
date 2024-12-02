@@ -283,13 +283,16 @@ export default class Ghost {
     let closestPacman = pacmanList[0];
 
     pacmanList.forEach((pacman, index) => {
-      let pacmanGridPosition = this.characterUtil.determineGridPosition(
-        pacman.position, this.scaledTileSize,
-      );
-      let distance = this.calculateDistance(gridPosition, pacmanGridPosition);
-      if (distance < closestPacmanDistance) {
-        closestPacmanDistance = distance;
-        closestPacman = pacman;        
+      if (pacman.enabled)
+      {
+        let pacmanGridPosition = this.characterUtil.determineGridPosition(
+          pacman.position, this.scaledTileSize,
+        );
+        let distance = this.calculateDistance(gridPosition, pacmanGridPosition);
+        if (distance < closestPacmanDistance) {
+          closestPacmanDistance = distance;
+          closestPacman = pacman;        
+        }
       }
     });
 
