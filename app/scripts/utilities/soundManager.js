@@ -30,7 +30,7 @@ export default class SoundManager {
     }
 
     if (this.dotPlayer) {
-      this.dotPlayer.volume = this.masterVolume;
+      this.dotPlayer.volume = this.masterVolume * 0.35;
     }
 
     if (this.masterVolume === 0) {
@@ -65,7 +65,7 @@ export default class SoundManager {
         `${this.baseUrl}dot_${this.dotSound}.${this.fileFormat}`,
       );
       this.dotPlayer.onended = this.dotSoundEnded.bind(this);
-      this.dotPlayer.volume = this.masterVolume;
+      this.dotPlayer.volume = this.masterVolume * 0.35;
       this.dotPlayer.play();
     }
   }
@@ -86,7 +86,9 @@ export default class SoundManager {
    * @param {String} sound
    */
   async setAmbience(sound, keepCurrentAmbience) {
-    if (!this.fetchingAmbience && !this.cutscene) {
+    if (sound == "")
+      this.stopAmbience()
+    else if (!this.fetchingAmbience && !this.cutscene) {
       if (!keepCurrentAmbience) {
         this.currentAmbience = sound;
         this.paused = false;
@@ -108,7 +110,17 @@ export default class SoundManager {
 
         this.ambienceSource = this.ambience.createBufferSource();
         this.ambienceSource.buffer = audioBuffer;
-        this.ambienceSource.connect(this.ambience.destination);
+
+        var gainNode = this.ambience.createGain()
+        if(sound == 'pause_beat')
+          gainNode.gain.value = 1 //volume = 100%
+        else if (sound == 'power_up')
+          gainNode.gain.value = 0.5 //volume = 50%
+        else
+          gainNode.gain.value = 0.35 //volume = 35%
+        gainNode.connect(this.ambience.destination)
+
+        this.ambienceSource.connect(gainNode);
         this.ambienceSource.loop = true;
         this.ambienceSource.start();
 

@@ -72,8 +72,9 @@ body {
   position: absolute;
   user-select: none;
   visibility: hidden;
-  width: 100%;
   z-index: 1;
+  padding-left: 25%;
+  padding-right: 25%;
 }
 
 .game-ui {
@@ -109,10 +110,10 @@ body {
         text-align: center;
       }
 
-      :not(:first-child) {
-        margin-right: calc(50% - 3em);
-        text-align: right;
-      }
+      // :not(:first-child) {
+      //   margin-right: calc(50% - 3em);
+      //   text-align: right;
+      // }
     }
   }
 
@@ -382,4 +383,24 @@ body {
     font-size: 20px;
     line-height: 1.25;
   }
+}
+
+#game-screen {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.game-sidecolumns {
+  flex:1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding:20px;
+}
+
+.game-sidecolumns img {
+  max-width: 450px;
+  max-height: 100%;
 }

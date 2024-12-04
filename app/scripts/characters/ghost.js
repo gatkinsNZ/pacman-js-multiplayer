@@ -407,7 +407,6 @@ export default class Ghost {
       case 'clyde':
         return this.determineClydeTarget(gridPosition, pacmanGridPosition);
       default:
-        // TODO: Other ghosts
         return pacmanGridPosition;
     }
   }
@@ -806,6 +805,7 @@ export default class Ghost {
         }));
         this.mode = 'eyes';
       } else {
+        //TODO: uncomment - testing
         window.dispatchEvent(new CustomEvent('deathSequence', {
           detail: {
             pacman: pacman,

@@ -18,6 +18,8 @@ export default class GameCoordinator {
     this.highScoreDisplay = document.getElementById('high-score-display');
     this.extraLivesDisplay = document.getElementById('extra-lives');
     this.levelDisplay = document.getElementById('level-display');
+    this.levelImage1 = document.getElementById('level-image1');
+    this.levelImage2 = document.getElementById('level-image2');
     this.fruitDisplay = document.getElementById('fruit-display');
     this.mainMenu = document.getElementById('main-menu-container');
     this.gameStartButton = document.getElementById('game-start');
@@ -29,7 +31,13 @@ export default class GameCoordinator {
     this.bottomRow = document.getElementById('bottom-row');
     this.movementButtons = document.getElementById('movement-buttons');
     this.gamepadInfoText = document.getElementById("gamepad-info");
-
+    this.level1Button = document.getElementById("level_1_btn");
+    this.level5Button = document.getElementById("level_5_btn");
+    this.level9Button = document.getElementById("level_9_btn");
+    this.level11Button = document.getElementById("level_11_btn");
+    this.videoContainer = document.getElementById("video-container");
+    this.pacmanVideo = document.getElementById("pacman-video");
+    
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
@@ -64,6 +72,7 @@ export default class GameCoordinator {
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
     ];
 
+    this.resetLevel = 1;
     this.maxFps = 120;
     this.tileSize = 8;
     this.scale = this.determineScale(1);
@@ -100,6 +109,10 @@ export default class GameCoordinator {
     });
 
     this.gameStartButton.addEventListener('click', this.startButtonClick.bind(this));
+    this.level1Button.addEventListener('click', this.levelButtonClick.bind(this, 1));
+    this.level5Button.addEventListener('click', this.levelButtonClick.bind(this, 5));
+    this.level9Button.addEventListener('click', this.levelButtonClick.bind(this, 9));
+    this.level11Button.addEventListener('click', this.levelButtonClick.bind(this, 11));
     this.pauseButton.addEventListener('click', this.handlePauseKey.bind(this));
     this.soundButton.addEventListener('click', this.soundButtonClick.bind(this));
     this.registerControllers();
@@ -157,6 +170,10 @@ export default class GameCoordinator {
       this.init();
     }
     this.startGameplay(true);
+  }
+
+  levelButtonClick(level) {
+    this.resetLevel = level;
   }
 
   /**
@@ -289,6 +306,17 @@ export default class GameCoordinator {
 
       // Misc
       'app/style/graphics/extra_life.png',
+      'app/style/graphics/a_button.png',
+
+      // Kids
+      'app/style/graphics/kids/Isla.png',
+      'app/style/graphics/kids/Jesse.png',
+      'app/style/graphics/kids/Joe.png',
+      'app/style/graphics/kids/Lachlan.png',
+      'app/style/graphics/kids/Max.png',
+      'app/style/graphics/kids/Milly.png',
+      'app/style/graphics/kids/Olive.png',
+      'app/style/graphics/kids/Ruby.png',
     ];
 
     const audioBase = 'app/style/audio/';
@@ -303,10 +331,58 @@ export default class GameCoordinator {
       `${audioBase}extra_life.mp3`,
       `${audioBase}eyes.mp3`,
       `${audioBase}eat_ghost.mp3`,
-      `${audioBase}death.mp3`,
       `${audioBase}fruit.mp3`,
       `${audioBase}dot_1.mp3`,
       `${audioBase}dot_2.mp3`,
+      `${audioBase}/death/death (1).mp3`,
+      `${audioBase}/death/death (2).mp3`,
+      `${audioBase}/death/death (3).mp3`,
+      `${audioBase}/death/death (4).mp3`,
+      `${audioBase}/death/death (5).mp3`,
+      `${audioBase}/death/death (6).mp3`,
+      `${audioBase}/death/death (7).mp3`,
+      `${audioBase}/death/death (8).mp3`,
+      `${audioBase}/death/death (9).mp3`,
+      `${audioBase}/death/death (10).mp3`,
+      `${audioBase}/death/death (11).mp3`,
+      `${audioBase}/death/death (12).mp3`,
+      `${audioBase}/death/death (13).mp3`,
+      `${audioBase}/death/death (14).mp3`,
+      `${audioBase}/death/death (15).mp3`,
+      `${audioBase}/death/death (16).mp3`,
+      `${audioBase}/death/death (17).mp3`,
+      `${audioBase}/death/death (18).mp3`,
+      `${audioBase}/death/death (19).mp3`,
+      `${audioBase}/death/death (20).mp3`,
+      `${audioBase}/death/death (21).mp3`,
+      `${audioBase}/death/death (22).mp3`,
+      `${audioBase}/death/death (23).mp3`,
+      `${audioBase}/death/death (24).mp3`,
+      `${audioBase}/level_end/level_end_1.mp3`,
+      `${audioBase}/level_end/level_end_2.mp3`,
+      `${audioBase}/level_end/level_end_3.mp3`,
+      `${audioBase}/level_end/level_end_4.mp3`,
+      `${audioBase}/level_end/level_end_5.mp3`,
+      `${audioBase}/level_end/level_end_6.mp3`,
+      `${audioBase}/level_end/level_end_7.mp3`,
+      `${audioBase}/level_end/level_end_8.mp3`,
+      `${audioBase}/level_end/level_end_9.mp3`,
+      `${audioBase}/level_end/level_end_10.mp3`,
+      `${audioBase}/level_end/level_end_11.mp3`,
+      `${audioBase}/powerup/powerup (1).mp3`,
+      `${audioBase}/powerup/powerup (2).mp3`,
+      `${audioBase}/powerup/powerup (3).mp3`,
+      `${audioBase}/powerup/powerup (4).mp3`,
+      `${audioBase}/powerup/powerup (5).mp3`,
+      `${audioBase}/powerup/powerup (6).mp3`,
+      `${audioBase}/powerup/powerup (7).mp3`,
+      `${audioBase}/powerup/powerup (8).mp3`,
+      `${audioBase}/powerup/powerup (9).mp3`,
+      `${audioBase}/powerup/powerup (10).mp3`,
+      `${audioBase}/powerup/powerup (11).mp3`,
+      `${audioBase}/powerup/powerup (12).mp3`,
+      `${audioBase}/powerup/powerup (13).mp3`,
+      `${audioBase}/powerup/powerup (14).mp3`,
     ];
 
     const totalSources = imgSources.length + audioSources.length;
@@ -400,7 +476,7 @@ export default class GameCoordinator {
     this.pacmenOnLevel = 4;
     this.horizontalControlsReversed = false;
     this.verticalControlsReversed = false;
-    this.level = 1;
+    this.level = this.resetLevel;
     this.lives = 2;
     this.extraLifeGiven = false;
     this.remainingDots = 0;
@@ -511,6 +587,8 @@ export default class GameCoordinator {
       this.clyde,
       this.fruit,
     ];
+
+    this.setupForLevel();
 
     if (this.firstGame) {
       this.drawMaze(this.mazeArray, this.entityList);
@@ -648,7 +726,10 @@ export default class GameCoordinator {
     const width = this.scaledTileSize * 6;
     const height = this.scaledTileSize * 2;
 
-    this.levelDisplay.innerHTML = this.level;
+    let levelNameAndImages = this.determineLevelNameAndImg();
+    this.levelDisplay.innerHTML = levelNameAndImages.name;
+    this.levelImage1.src = levelNameAndImages.imageurl;
+    this.levelImage2.src = levelNameAndImages.imageurl; //TODO: get 2nd images for kids
     this.displayText({ left, top }, 'ready', duration, width, height);
     this.updateExtraLivesDisplay();
 
@@ -670,6 +751,18 @@ export default class GameCoordinator {
       this.idleGhosts = [this.pinky, this.inky, this.clyde];
       this.releaseGhost();
     }, duration);
+  }
+
+  determineLevelNameAndImg() {
+    switch(this.level) {
+      case 1:
+        return { name: "Milly", imageurl: "app/style/graphics/kids/Milly.png" };
+      case 2:
+        return { name: "Max", imageurl: "app/style/graphics/kids/Max.png" };
+      // more cases...
+      default:
+        return { name: this.level, imageurl: "" };
+    }
   }
 
   /**
@@ -782,15 +875,17 @@ export default class GameCoordinator {
 
       let controllers = gameControl.getGamepads();
       let numberOfControllers = Object.keys(controllers).length
-      if(numberOfControllers >= 2)
+      if(numberOfControllers >= 2) //TODO: change to 4
       {  
         console.log(numberOfControllers + ' controllers connected');
         this.gameStartButton.disabled = false;
+        //this.gameStartButton.style.visibility = 'visible';
         this.gamepadInfoText.textContent = numberOfControllers + " controllers connected.\r\n You can start the game by pressing A";
         if (!this.isMainMenuDisplaying()) 
           this.handlePauseKey();
       }
       else {
+        //this.gameStartButton.style.visibility = 'hidden';
         this.gamepadInfoText.textContent = "Only " + numberOfControllers + " controllers connected.\r\n Waiting for 4 gamepads to connect...\r\n(turn on and press A)";
       }
 
@@ -1110,7 +1205,7 @@ export default class GameCoordinator {
         ghostRef.display = false;
       });
       pacman.prepDeathAnimation();
-      this.soundManager.play('death');
+      this.playDeathSound();
 
       if (this.lives > 0) {
         this.lives -= 1;
@@ -1135,6 +1230,14 @@ export default class GameCoordinator {
         this.gameOver();
       }
     }, 750);
+  }
+
+  playDeathSound() {
+    let min = 1;
+    let max = 24;
+    
+    let selectionIndex = Math.floor(Math.random() * (max - min + 1)) + min;
+    this.soundManager.play('death/death ('+ selectionIndex + ')');
   }
 
   /**
@@ -1189,8 +1292,8 @@ export default class GameCoordinator {
     //   this.advanceLevel();
     // }
 
-    //TODO: change back
-    if (this.remainingDots === 220) {
+    //TODO: testing change back
+    if (this.remainingDots === 240) {
       this.remainingDots = 0;
       this.advanceLevel();
     }
@@ -1226,12 +1329,14 @@ export default class GameCoordinator {
   determineSiren(remainingDots) {
     let sirenNum;
 
-    if (remainingDots > 40) {
-      sirenNum = 1;
-    } else if (remainingDots > 20) {
-      sirenNum = 2;
-    } else {
+    if (remainingDots < 20) {
       sirenNum = 3;
+    } else if (remainingDots < 40) {
+      sirenNum = 2;
+    } else if (remainingDots < 80) {
+      sirenNum = 1;
+    } else {
+       return ''
     }
 
     return `siren_${sirenNum}`;
@@ -1246,6 +1351,7 @@ export default class GameCoordinator {
     this.soundManager.setCutscene(this.cutscene);
     this.allowKeyPresses = false;
     this.soundManager.stopAmbience();
+    this.soundManager.play('level_end/level_end_'+ this.level);
 
     this.entityList.forEach((entity) => {
       const entityRef = entity;
@@ -1281,88 +1387,34 @@ export default class GameCoordinator {
                   new Timer(() => {
                     this.mazeCover.style.visibility = 'hidden';
                     this.level += 1;
-                    this.pacmenOnLevel = 4
-                    this.speedLevel = 1;
-                    this.horizontalControlsReversed = false;
-                    this.verticalControlsReversed = false;
-                    switch(this.level) {
-                      case 1:
-                        this.speedLevel = 1;
-                        break;
-                      case 2:
-                        this.pacmenOnLevel = 2
-                        this.speedLevel = 5;
-                        break;
-                      case 3:
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        break;
-                      case 4:
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        this.verticalControlsReversed = true;
-                        break;
-                      case 5:
-                        this.pacmenOnLevel = 2
-                        this.speedLevel = 1;
-                        break;
-                      case 6:
-                        this.pacmenOnLevel = 2
-                        this.speedLevel = 5;
-                        break;
-                      case 7:
-                        this.pacmenOnLevel = 2
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        break;
-                      case 8:
-                        this.pacmenOnLevel = 2
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        this.verticalControlsReversed = true;
-                        break;
-                      case 9:
-                        this.pacmenOnLevel = 1
-                        this.speedLevel = 1;
-                        break;
-                      case 10:
-                        this.pacmenOnLevel = 1
-                        this.speedLevel = 5;
-                        break;
-                      case 11:
-                        this.pacmenOnLevel = 1
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        break;
-                      case 12:
-                        this.pacmenOnLevel = 1
-                        this.speedLevel = 5;
-                        this.horizontalControlsReversed = true;
-                        this.verticalControlsReversed = true;
-                        break;
-                    }
 
-                    this.allowKeyPresses = true;
-                    this.entityList.forEach((entity) => {
-                      const entityRef = entity;
-                      if (entityRef.level) {
-                        entityRef.level = this.speedLevel;
-                      }
-                      if (entityRef instanceof Pacman) {
-                        entityRef.enabled = (entityRef.pacmanIndex < this.pacmenOnLevel);
-                      }
-                      entityRef.reset();
-                      if (entityRef instanceof Ghost) {
-                        entityRef.resetDefaultSpeed();
-                      }
-                      if (
-                        entityRef instanceof Pickup
-                        && entityRef.type !== 'fruit'
-                      ) {
-                        this.remainingDots += 1;
-                      }
-                    });
-                    this.startGameplay();
+                    if(this.level > 11) {
+                      this.videoContainer.style.visibility = 'visible';
+                      new Timer(() => {
+                        if (this.pacmanVideo.requestFullscreen) {
+                          this.pacmanVideo.requestFullscreen();
+                        } else if (pacmanVideo.webkitRequestFullscreen) {
+                          this.pacmanVideo.webkitRequestFullscreen();
+                        } else if (pacmanVideo.msRequestFullscreen) {
+                          this.pacmanVideo.msRequestFullscreen();
+                        }
+                        this.pacmanVideo.play();
+                      }, 5000);
+                    } else {
+                      this.setupForLevel();
+
+                      this.allowKeyPresses = true;
+                      this.entityList.forEach((entity) => {
+                        const entityRef = entity;
+                        if (
+                          entityRef instanceof Pickup
+                          && entityRef.type !== 'fruit'
+                        ) {
+                          this.remainingDots += 1;
+                        }
+                      });
+                      this.startGameplay();
+                    }
                   }, 500);
                 }, 250);
               }, 250);
@@ -1371,6 +1423,80 @@ export default class GameCoordinator {
         }, 250);
       }, 250);
     }, 2000);
+  }
+
+  setupForLevel() {
+    this.pacmenOnLevel = 4
+    this.speedLevel = 1;
+    this.horizontalControlsReversed = false;
+    this.verticalControlsReversed = false;
+    switch(this.level) {
+      // 4 pacmen
+      case 1:
+        this.speedLevel = 1;
+        break;
+      case 2:
+        this.speedLevel = 5;
+        break;
+      case 3:
+        this.speedLevel = 5;
+        this.horizontalControlsReversed = true;
+        break;
+      case 4:
+        this.speedLevel = 5;
+        this.horizontalControlsReversed = true;
+        this.verticalControlsReversed = true;
+        break;
+      // 2 pacmen
+      case 5:
+        this.pacmenOnLevel = 2
+        this.speedLevel = 1;
+        break;
+      case 6:
+        this.pacmenOnLevel = 2
+        this.speedLevel = 5;
+        break;
+      case 7:
+        this.pacmenOnLevel = 2
+        this.speedLevel = 5;
+        this.horizontalControlsReversed = true;
+        break;
+      case 8:
+        this.pacmenOnLevel = 2
+        this.speedLevel = 5;
+        this.horizontalControlsReversed = true;
+        this.verticalControlsReversed = true;
+        break;
+      // 1 pacman
+      case 9:
+        this.pacmenOnLevel = 1
+        this.speedLevel = 1;
+        break;
+      case 10:
+        this.pacmenOnLevel = 1
+        this.speedLevel = 5;
+        break;
+      case 11:
+        this.pacmenOnLevel = 1
+        this.speedLevel = 5;
+        this.horizontalControlsReversed = true;
+        this.verticalControlsReversed = true;
+        break;
+    }
+
+    this.entityList.forEach((entity) => {
+      const entityRef = entity;
+      if (entityRef.level) {
+        entityRef.level = this.speedLevel;
+      }
+      if (entityRef instanceof Pacman) {
+        entityRef.enabled = (entityRef.pacmanIndex < this.pacmenOnLevel);
+      }
+      entityRef.reset();
+      if (entityRef instanceof Ghost) {
+        entityRef.resetDefaultSpeed();
+      }
+    });
   }
 
   /**
@@ -1403,6 +1529,7 @@ export default class GameCoordinator {
    */
   powerUp() {
     if (this.remainingDots !== 0) {
+      this.soundManager.play('powerup/powerup ('+ this.level + ')');
       this.soundManager.setAmbience('power_up');
     }
 
