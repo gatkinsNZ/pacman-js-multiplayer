@@ -28,18 +28,44 @@ const gamepad = {
           error(MESSAGES.INVALID_PROPERTY);
         }
       },
-      vibrate: function(value = 0.75, duration = 500) {
+      vibrate: function(value = 0.75, duration = 500, effect = 'dual-rumble', startDelay=0) {
         if (this.hapticActuator) {
           switch (this.vibrationMode) {
             case 0:
               return this.hapticActuator.pulse(value, duration);
             case 1:
-              return this.hapticActuator.playEffect('dual-rumble', {
-                duration: duration,
-                strongMagnitude: value,
-                weakMagnitude: value
-              });
+              if (effect == 'dual-rumble') {
+                return this.hapticActuator.playEffect('dual-rumble', {
+                  startDelay: startDelay,
+                  duration: duration,
+                  strongMagnitude: value,
+                  weakMagnitude: value,
+                });
+              } else if (effect == 'left-trigger') {
+                return this.hapticActuator.playEffect('trigger-rumble', {
+                  startDelay: startDelay,
+                  duration: duration,
+                  strongMagnitude: value,
+                  weakMagnitude: value * 0.5,
+                  leftTrigger: value,
+                  rightTrigger:0
+                });
+              } else if (effect == 'right-trigger') {
+                return this.hapticActuator.playEffect('trigger-rumble', {
+                  startDelay: startDelay,
+                  duration: duration,
+                  strongMagnitude: value,
+                  weakMagnitude: value * 0.5,
+                  leftTrigger:0,
+                  rightTrigger: value
+                });
+              }
           }
+        }
+      },
+      resetVibrate: function() {
+        if (this.hapticActuator) {
+          return this.hapticActuator.reset();
         }
       },
       triggerDirectionalAction: function(id, axe, condition, x, index) {

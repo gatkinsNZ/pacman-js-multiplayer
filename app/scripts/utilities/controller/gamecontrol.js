@@ -2,6 +2,7 @@ import { log, error, isGamepadSupported } from './tools';
 import { MESSAGES } from './constants';
 import gamepad from './gamepad';
 
+//https://github.com/alvaromontoro/gamecontroller.js
 const gameControl = {
   gamepads: {},
   axeThreshold: [1.0], // this is an array so it can be expanded without breaking in the future

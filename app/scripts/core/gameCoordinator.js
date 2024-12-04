@@ -317,6 +317,9 @@ export default class GameCoordinator {
       'app/style/graphics/kids/Milly.png',
       'app/style/graphics/kids/Olive.png',
       'app/style/graphics/kids/Ruby.png',
+      'app/style/graphics/kids/Grandma.png',
+      'app/style/graphics/kids/Basil1.png',
+      'app/style/graphics/kids/Basil2.png',
     ];
 
     const audioBase = 'app/style/audio/';
@@ -358,6 +361,11 @@ export default class GameCoordinator {
       `${audioBase}/death/death (22).mp3`,
       `${audioBase}/death/death (23).mp3`,
       `${audioBase}/death/death (24).mp3`,
+      `${audioBase}/death/death (25).mp3`,
+      `${audioBase}/death/death (26).mp3`,
+      `${audioBase}/death/death (27).mp3`,
+      `${audioBase}/death/death (28).mp3`,
+      `${audioBase}/death/death (29).mp3`,
       `${audioBase}/level_end/level_end_1.mp3`,
       `${audioBase}/level_end/level_end_2.mp3`,
       `${audioBase}/level_end/level_end_3.mp3`,
@@ -728,8 +736,8 @@ export default class GameCoordinator {
 
     let levelNameAndImages = this.determineLevelNameAndImg();
     this.levelDisplay.innerHTML = levelNameAndImages.name;
-    this.levelImage1.src = levelNameAndImages.imageurl;
-    this.levelImage2.src = levelNameAndImages.imageurl; //TODO: get 2nd images for kids
+    this.levelImage1.src = levelNameAndImages.imageurl1;
+    this.levelImage2.src = levelNameAndImages.imageurl2;
     this.displayText({ left, top }, 'ready', duration, width, height);
     this.updateExtraLivesDisplay();
 
@@ -756,9 +764,72 @@ export default class GameCoordinator {
   determineLevelNameAndImg() {
     switch(this.level) {
       case 1:
-        return { name: "Milly", imageurl: "app/style/graphics/kids/Milly.png" };
+        return { 
+          name: "Lachlan", 
+          imageurl1: "app/style/graphics/kids/Lachlan.png",
+          imageurl2: "app/style/graphics/kids/Lachlan.png",
+         };
       case 2:
-        return { name: "Max", imageurl: "app/style/graphics/kids/Max.png" };
+        return { 
+          name: "Joe", 
+          imageurl1: "app/style/graphics/kids/Joe.png", 
+          imageurl2: "app/style/graphics/kids/Joe.png" 
+        };
+      case 3:
+        return { 
+          name: "Ruby", 
+          imageurl1: "app/style/graphics/kids/Ruby.png",
+          imageurl2: "app/style/graphics/kids/Ruby.png"
+        };
+      case 4:
+        return { 
+          name: "Olive", 
+          imageurl1: "app/style/graphics/kids/Olive.png",
+          imageurl2: "app/style/graphics/kids/Olive.png",
+        };
+      case 5:
+        return { 
+          name: "Jesse", 
+          imageurl1: "app/style/graphics/kids/Jesse.png",
+          imageurl2: "app/style/graphics/kids/Jesse.png",
+        };
+      case 6:
+        return { 
+          name: "Max", 
+          imageurl1: "app/style/graphics/kids/Max.png",
+          imageurl2: "app/style/graphics/kids/Max.png",
+        };
+      case 7:
+        return { 
+          name: "Isla", 
+          imageurl1: "app/style/graphics/kids/Isla.png",
+          imageurl2: "app/style/graphics/kids/Isla.png",
+        };
+      case 8:
+        return { 
+          name: "Milly", 
+          imageurl1: "app/style/graphics/kids/Milly.png",
+          imageurl2: "app/style/graphics/kids/Milly.png",
+        };
+      case 9:
+        return { 
+          name: "Grandma", 
+          imageurl1: "app/style/graphics/kids/Grandma.png",
+          imageurl2: "app/style/graphics/kids/Grandma.png",
+        };
+      case 10:
+        return { 
+          name: "Basil", 
+          imageurl1: "app/style/graphics/kids/Basil2.png",
+          imageurl2: "app/style/graphics/kids/Basil1.png",
+        };
+      case 11:
+        return { 
+          name: "Final!", 
+          imageurl1: "app/style/graphics/kids/Basil2.png",
+          imageurl2: "app/style/graphics/kids/Basil1.png",
+        };
+
       // more cases...
       default:
         return { name: this.level, imageurl: "" };
@@ -900,79 +971,48 @@ export default class GameCoordinator {
 
       //D-pad
       gamepad.before('button12', () => {
-        this.controllerToPacmanMap(gamepad, "up");
+        this.controllerToPacmanMapMove(gamepad, "up");
       });
 
       gamepad.before('button13', () => {
-        this.controllerToPacmanMap(gamepad, "down");
+        this.controllerToPacmanMapMove(gamepad, "down");
       });
   
       gamepad.before('button14', () => {
-        this.controllerToPacmanMap(gamepad, "left");
+        this.controllerToPacmanMapMove(gamepad, "left");
       });
 
       gamepad.before('button15', () => {
-        this.controllerToPacmanMap(gamepad, "right");
+        this.controllerToPacmanMapMove(gamepad, "right");
       });
         
       //left analog stick
       gamepad.before('up', () => {
-        this.controllerToPacmanMap(gamepad, "up");
+        this.controllerToPacmanMapMove(gamepad, "up");
       });
 
       gamepad.before('down', () => {
-        this.controllerToPacmanMap(gamepad, "down");
+        this.controllerToPacmanMapMove(gamepad, "down");
       });
 
       gamepad.before('left', () => {
-        this.controllerToPacmanMap(gamepad, "left");
+        this.controllerToPacmanMapMove(gamepad, "left");
       });
 
       gamepad.before('right', () => {
-        this.controllerToPacmanMap(gamepad, "right");
-          // this.horizontalControlsReversed = true;
-          //               this.verticalControlsReversed = true;
+        this.controllerToPacmanMapMove(gamepad, "right");
       });
 
-      // //D-pad
-      // gamepad.before('button12', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "up");
-      // });
+      //triggers - left
+      gamepad.before('button4', () => {
+        this.controllerToPacmanMapVibrate(gamepad, "left")
+      });
 
-      // gamepad.before('button13', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "down");
-      // });
-  
-      // gamepad.before('button14', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "left");
-      // });
-
-      // gamepad.before('button15', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "right");
-      // });
-        
-      // //left analog stick
-      // gamepad.before('up', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "up");
-      // });
-
-      // gamepad.before('down', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "down");
-      // });
-
-      // gamepad.before('left', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "left");
-      // });
-
-      // gamepad.before('right', () => {
-      //   this.changeDirection(this.controllerToPacmanMap(gamepad), "right");
-      //     // this.horizontalControlsReversed = true;
-      //     //               this.verticalControlsReversed = true;
-      // });
-
-      
-  
-      
+      //triggers - right
+      gamepad.before('button5', () => {
+        this.controllerToPacmanMapVibrate(gamepad, "right");
+      });
+ 
     });
     
     gameControl.on('disconnect', gamepad => {
@@ -994,7 +1034,7 @@ export default class GameCoordinator {
     });
   }
 
-  controllerToPacmanMap(gamepad, direction)
+  controllerToPacmanMapMove(gamepad, direction)
   {
     let controllerNumber = parseInt(gamepad.id)
     console.log("controller: " + controllerNumber)
@@ -1037,7 +1077,87 @@ export default class GameCoordinator {
       console.log("Too many controllers!")
   }
 
-  // controllerToPacmanMap(gamepad, direction)
+  controllerToPacmanMapVibrate(gamepad, triggerLocation)
+  {
+    let controllerNumber = parseInt(gamepad.id)
+    console.log("controller: " + controllerNumber)
+
+    let controllers = gameControl.getGamepads();
+    let numberOfControllers = Object.keys(controllers).length
+    console.log("controllers count: " + numberOfControllers);
+
+    let controllerNumberToRumble = 0;
+    if (numberOfControllers == 4)
+      if(triggerLocation == 'left') {
+        controllerNumberToRumble = controllerNumber - 1;
+        if (controllerNumberToRumble < 0)
+          controllerNumberToRumble = 3;
+        controllers[controllerNumberToRumble].vibrate(0.8, 300, 'left-trigger');
+      }
+      else if(triggerLocation == 'right') {
+        controllerNumberToRumble = controllerNumber + 1;
+        if (controllerNumberToRumble > 3)
+          controllerNumberToRumble = 0;
+        controllers[controllerNumberToRumble].vibrate(0.8, 300, 'right-trigger');
+      }
+  }
+
+  rumbleAllControllers()
+  {
+    let controllers = gameControl.getGamepads();
+
+    for(const [key, controller] of Object.entries(controllers)) {
+      controller.vibrate(1, 300);
+      new Timer(() => {
+        controller.vibrate(1, 300);
+        new Timer(() => {
+          controller.vibrate(1, 300);
+        }, 400);
+      }, 400);
+    }
+  }
+
+  stopRumbleAllControllers()
+  {
+    let controllers = gameControl.getGamepads();
+
+    for(const [key, controller] of Object.entries(controllers)) {
+      controller.resetVibrate();
+    }
+  }
+
+  rumbleControllerDeath(index)
+  {
+    let controllers = gameControl.getGamepads();
+    let controller = controllers[index]
+
+    if (controller) {
+      controller.vibrate(0.9, 200, 'left-trigger');
+      new Timer(() => {
+        controller.vibrate(0.9, 200, 'right-trigger');
+        new Timer(() => {
+          controller.vibrate(0.9, 200, 'left-trigger');
+          new Timer(() => {
+            controller.vibrate(0.9, 200, 'right-trigger');
+            new Timer(() => {
+              controller.vibrate(0.9, 200, 'left-trigger');
+              new Timer(() => {
+                controller.vibrate(0.9, 200, 'right-trigger');
+                new Timer(() => {
+                  controller.vibrate(0.9, 200, 'left-trigger');
+                  new Timer(() => {
+                    controller.vibrate(0.9, 200, 'right-trigger');
+                  }, 300);
+                }, 300);
+              }, 300);
+            }, 300);
+          }, 300);
+        }, 300);
+      }, 300);
+    }
+  }
+
+  // controllerToPacmanMapMove(gamepad, direction)
   // {
   //   let controllerNumber = parseInt(gamepad.id)
 
@@ -1088,7 +1208,6 @@ export default class GameCoordinator {
       // Q
       this.soundButtonClick();
     } else if (this.movementKeys[e.keyCode]) {
-      //TODO: needs to be made for dynamic numebr of pacmen
       if(this.pacmans.length > 1 && e.keyCode > 41)
         this.changeDirection(this.pacmans[1], this.movementKeys[e.keyCode]);
       else
@@ -1187,7 +1306,7 @@ export default class GameCoordinator {
     this.removeTimer({ detail: { timer: this.fruitTimer } });
     this.removeTimer({ detail: { timer: this.ghostCycleTimer } });
     this.removeTimer({ detail: { timer: this.endIdleTimer } });
-    this.removeTimer({ detail: { timer: this.ghostFlashTimer } });
+    this.removeTimer({ detail: { timer: this.ghostFlashTimer } }); 
 
     this.allowKeyPresses = false;
     //stop all pacmans - makes more consistent
@@ -1199,6 +1318,7 @@ export default class GameCoordinator {
       ghostRef.moving = false;
     });
 
+    this.rumbleControllerDeath(pacman.pacmanIndex);
     new Timer(() => {
       this.ghosts.forEach((ghost) => {
         const ghostRef = ghost;
@@ -1222,7 +1342,7 @@ export default class GameCoordinator {
               ghost.reset();
             });
             this.fruit.hideFruit();
-
+            this.stopRumbleAllControllers();
             this.startGameplay();
           }, 500);
         }, 2250);
@@ -1234,7 +1354,7 @@ export default class GameCoordinator {
 
   playDeathSound() {
     let min = 1;
-    let max = 24;
+    let max = 29;
     
     let selectionIndex = Math.floor(Math.random() * (max - min + 1)) + min;
     this.soundManager.play('death/death ('+ selectionIndex + ')');
@@ -1288,12 +1408,11 @@ export default class GameCoordinator {
       this.speedUpBlinky();
     }
 
+    //TODO: testing change back to 0
     // if (this.remainingDots === 0) {
     //   this.advanceLevel();
     // }
-
-    //TODO: testing change back
-    if (this.remainingDots === 240) {
+    if (this.remainingDots === 120) {
       this.remainingDots = 0;
       this.advanceLevel();
     }
@@ -1391,14 +1510,40 @@ export default class GameCoordinator {
                     if(this.level > 11) {
                       this.videoContainer.style.visibility = 'visible';
                       new Timer(() => {
-                        if (this.pacmanVideo.requestFullscreen) {
-                          this.pacmanVideo.requestFullscreen();
-                        } else if (pacmanVideo.webkitRequestFullscreen) {
-                          this.pacmanVideo.webkitRequestFullscreen();
-                        } else if (pacmanVideo.msRequestFullscreen) {
-                          this.pacmanVideo.msRequestFullscreen();
-                        }
                         this.pacmanVideo.play();
+                        let firstvideo = true;
+                        let stopTime = 435; 
+                        this.pacmanVideo.addEventListener('timeupdate', () => {
+                          if(firstvideo && this.pacmanVideo.currentTime >= stopTime)
+                          {
+                            firstvideo = false;
+                            this.pacmanVideo.src = 'app/style/videos/rick.mp4';
+                            this.pacmanVideo.load();
+                            this.pacmanVideo.play();
+                            stopTime = 435;
+                          }
+                          // else if(!firstvideo && this.pacmanVideo.currentTime >= stopTime) {
+                          //   this.pacmanVideo.pause(); // Stop the video
+                          //   this.pacmanVideo.currentTime = stopTime; // Ensure it doesn't progress further
+                          // }
+                          //   stopTime = 435; 
+                          // if (this.pacmanVideo.currentTime >= stopTime) {
+                          //   this.pacmanVideo.pause(); // Stop the video
+                          //   video.currentTime = stopTime; // Ensure it doesn't progress further
+                          //   videoPlayer.src = videos[currentVideoIndex];
+                          //   videoPlayer.load();
+                          //   videoPlayer.play();
+                          // }
+                        });
+                        // this.pacmanVideo.addEventListener('ended', () => {
+                        //   currentVideoIndex++;
+                        //   if (!played) {
+                        //       played = true;
+                        //       //videoPlayer.src = videos[currentVideoIndex];
+                        //       videoPlayer.load();
+                        //       videoPlayer.play();
+                        //   }
+                        // });
                       }, 5000);
                     } else {
                       this.setupForLevel();
@@ -1433,7 +1578,7 @@ export default class GameCoordinator {
     switch(this.level) {
       // 4 pacmen
       case 1:
-        this.speedLevel = 1;
+        this.speedLevel = 2;
         break;
       case 2:
         this.speedLevel = 5;
@@ -1450,7 +1595,7 @@ export default class GameCoordinator {
       // 2 pacmen
       case 5:
         this.pacmenOnLevel = 2
-        this.speedLevel = 1;
+        this.speedLevel = 2;
         break;
       case 6:
         this.pacmenOnLevel = 2
@@ -1470,7 +1615,7 @@ export default class GameCoordinator {
       // 1 pacman
       case 9:
         this.pacmenOnLevel = 1
-        this.speedLevel = 1;
+        this.speedLevel = 2;
         break;
       case 10:
         this.pacmenOnLevel = 1
@@ -1529,6 +1674,7 @@ export default class GameCoordinator {
    */
   powerUp() {
     if (this.remainingDots !== 0) {
+      this.rumbleAllControllers();
       this.soundManager.play('powerup/powerup ('+ this.level + ')');
       this.soundManager.setAmbience('power_up');
     }
