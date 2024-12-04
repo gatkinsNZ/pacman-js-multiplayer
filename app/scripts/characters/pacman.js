@@ -82,7 +82,7 @@ export default class Pacman {
     this.pacmanArrow.style.width = `${this.measurement * 2}px`;
     this.pacmanArrow.style.backgroundSize = `${this.measurement * 2}px`;
 
-    //TODO: start with pacman mouth open - can be rmeoved if want just circle
+    //start with pacman mouth open - can be removed if want just circle
     this.backgroundOffsetPixels = this.measurement;
     this.animationTarget.style.backgroundPosition =`-${this.backgroundOffsetPixels}px 0px`;
   }

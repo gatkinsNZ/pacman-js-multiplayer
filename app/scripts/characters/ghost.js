@@ -657,7 +657,7 @@ export default class Ghost {
     );
 
     let pacman = this.determineClosestPacman(gridPosition, this.pacmanList)
-    //TODO: am doing the below in determineClosestPacman - could perhaps just return from there 
+    //am doing the below in determineClosestPacman - could perhaps just return from there 
     const pacmanGridPosition = this.characterUtil.determineGridPosition(
       pacman.position, this.scaledTileSize,
     );
@@ -805,7 +805,7 @@ export default class Ghost {
         }));
         this.mode = 'eyes';
       } else {
-        //TODO: uncomment - testing
+        //Testing:
         window.dispatchEvent(new CustomEvent('deathSequence', {
           detail: {
             pacman: pacman,

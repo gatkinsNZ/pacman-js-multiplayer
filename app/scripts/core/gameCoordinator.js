@@ -499,7 +499,6 @@ export default class GameCoordinator {
         this.collisionDetectionLoop();
       }, 500);
 
-      //TODO: needs to be changed to make dynamic
       this.pacman = new Pacman(
         this.scaledTileSize,
         this.mazeArray,
@@ -1107,13 +1106,13 @@ export default class GameCoordinator {
     let controllers = gameControl.getGamepads();
 
     for(const [key, controller] of Object.entries(controllers)) {
-      controller.vibrate(1, 300);
+      controller.vibrate(1, 200);
       new Timer(() => {
-        controller.vibrate(1, 300);
+        controller.vibrate(1, 200);
         new Timer(() => {
-          controller.vibrate(1, 300);
-        }, 400);
-      }, 400);
+          controller.vibrate(1, 200);
+        }, 300);
+      }, 300);
     }
   }
 
@@ -1408,6 +1407,7 @@ export default class GameCoordinator {
       this.speedUpBlinky();
     }
 
+    //Testing:
     //TODO: testing change back to 0
     // if (this.remainingDots === 0) {
     //   this.advanceLevel();
