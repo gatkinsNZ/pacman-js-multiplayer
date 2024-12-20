@@ -37,7 +37,10 @@ export default class GameCoordinator {
     this.level11Button = document.getElementById("level_11_btn");
     this.videoContainer = document.getElementById("video-container");
     this.pacmanVideo = document.getElementById("pacman-video");
-    
+    this.videoPasscodeContainer = document.getElementById("video-passcode-container");
+    this.videoPasscode = document.getElementById("video-passcode");
+    this.videoPasscodeButton = document.getElementById("video-passcode-go");
+
     this.mazeArray = [
       ['XXXXXXXXXXXXXXXXXXXXXXXXXXXX'],
       ['XooooooooooooXXooooooooooooX'],
@@ -945,7 +948,7 @@ export default class GameCoordinator {
 
       let controllers = gameControl.getGamepads();
       let numberOfControllers = Object.keys(controllers).length
-      if(numberOfControllers >= 2) //TODO: change to 4
+      if(numberOfControllers >= 4) //TODO: change to 4
       {  
         console.log(numberOfControllers + ' controllers connected');
         this.gameStartButton.disabled = false;
@@ -1409,13 +1412,13 @@ export default class GameCoordinator {
 
     //Testing:
     //TODO: testing change back to 0
-    // if (this.remainingDots === 0) {
-    //   this.advanceLevel();
-    // }
-    if (this.remainingDots === 120) {
-      this.remainingDots = 0;
+    if (this.remainingDots === 0) {
       this.advanceLevel();
     }
+    // if (this.remainingDots === 140) {
+    //   this.remainingDots = 0;
+    //   this.advanceLevel();
+    // }
   }
 
   /**
@@ -1511,39 +1514,21 @@ export default class GameCoordinator {
                       this.videoContainer.style.visibility = 'visible';
                       new Timer(() => {
                         this.pacmanVideo.play();
-                        let firstvideo = true;
-                        let stopTime = 435; 
-                        this.pacmanVideo.addEventListener('timeupdate', () => {
-                          if(firstvideo && this.pacmanVideo.currentTime >= stopTime)
-                          {
-                            firstvideo = false;
-                            this.pacmanVideo.src = 'app/style/videos/rick.mp4';
+
+                        this.pacmanVideo.addEventListener('ended', () => {
+                          this.videoPasscodeContainer.style.visibility = 'visible';
+                        });
+
+                        this.videoPasscodeButton.addEventListener('click', () => {
+                          if(this.videoPasscode.value == "3573") {
+                            this.videoPasscodeContainer.style.visibility = 'hidden';
+                            this.pacmanVideo.src = 'app/style/videos/outro2.mp4';
                             this.pacmanVideo.load();
                             this.pacmanVideo.play();
-                            stopTime = 435;
                           }
-                          // else if(!firstvideo && this.pacmanVideo.currentTime >= stopTime) {
-                          //   this.pacmanVideo.pause(); // Stop the video
-                          //   this.pacmanVideo.currentTime = stopTime; // Ensure it doesn't progress further
-                          // }
-                          //   stopTime = 435; 
-                          // if (this.pacmanVideo.currentTime >= stopTime) {
-                          //   this.pacmanVideo.pause(); // Stop the video
-                          //   video.currentTime = stopTime; // Ensure it doesn't progress further
-                          //   videoPlayer.src = videos[currentVideoIndex];
-                          //   videoPlayer.load();
-                          //   videoPlayer.play();
-                          // }
+                          else
+                            this.soundManager.play('death/death (5)');
                         });
-                        // this.pacmanVideo.addEventListener('ended', () => {
-                        //   currentVideoIndex++;
-                        //   if (!played) {
-                        //       played = true;
-                        //       //videoPlayer.src = videos[currentVideoIndex];
-                        //       videoPlayer.load();
-                        //       videoPlayer.play();
-                        //   }
-                        // });
                       }, 5000);
                     } else {
                       this.setupForLevel();

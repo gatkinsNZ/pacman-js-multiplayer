@@ -44,10 +44,58 @@
             top: 0;
             left: 0;
             background-color: black;">
-          <source src="app/style/videos/pacman.mp4" type="video/mp4">
+          <source src="app/style/videos/outro1.mp4" type="video/mp4">
           Your browser does not support the video tag.
-      </video>
+        </video>
       </div>
+      <div id='video-passcode-container' style="z-index: 6;visibility: hidden;">
+        <div style="
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          text-align: center; margin-top: 100px;">
+            <h1>Go get the adults and enter the code from George to continue</h1>
+            <input type="text" id='video-passcode' name="video-passcode"
+              autocomplete="off"
+              style="width: 200px; background-color: #fcc73f;
+              border: 5px solid #231f20;
+              border-radius: 10px;
+              color: #231f20;
+              cursor: pointer;
+              font-size: 48px;
+              outline: none;
+              padding: 16px;">
+            <button id='video-passcode-go' class='game-start'>Enter</button>
+        </div>
+      </div>
+      <div id='video-passcode-container2' style="z-index: 5;visibility: hidden;">
+        <div style="
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          left: 0;
+          text-align: center;">
+            <h1>Go get the adults and enter the code from George to continue</h1>
+            <input type="text" id="fname" name="fname" class="game-start"
+              style="width: 200px;">
+        </div>
+      </div>
+      <!-- <div id='video-container-2' style="z-index: 5;visibility: hidden;">
+        <video id="pacman-video" style="
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: black;">
+          <source src="app/style/videos/outro2.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div> -->
+
 
       <div class='header-buttons'>
         <button>
